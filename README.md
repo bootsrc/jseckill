@@ -199,4 +199,4 @@ mvn package -Dmaven.test.skip=true
 
 |微信         | 支付宝           | 
 | ------------- |:-------------:| 
-| ![](https://github.com/flylib/fly-seckill/blob/master/wechat.png)      | ![](https://github.com/flylib/fly-seckill/blob/master/alipay.png) |
+| ![](https://github.com/flylib/fly-seckill/blob/master/alipay.png)      | ![](https://github.com/flylib/fly-seckill/blob/master/wechat.png) |
