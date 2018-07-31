@@ -197,6 +197,6 @@ mvn package -Dmaven.test.skip=true
 
 如果您愿意捐助一下项目，可以通过微信/支付宝捐助哟~
 
-|微信         | 支付宝           | 
+|支付宝         | 微信           | 
 | ------------- |:-------------:| 
 | ![](https://github.com/flylib/fly-seckill/blob/master/alipay.png)      | ![](https://github.com/flylib/fly-seckill/blob/master/wechat.png) |
