@@ -188,12 +188,16 @@ public SecKillEnum handleByRedisWatch(Map<String, Object> paramMap) {
 ## 测试方法:
 测试地址
 ```
-http://localhost:26000/seckill/baseOnRedisWatchSimple?userId=3&productId=1
 
-
-乐观锁方式进行秒杀测试
+1.乐观锁方式进行秒杀测试（基于数据库事务， 简单可靠。 适合于一般的中型互联网项目）
 
 http://localhost:26000/seckill/posiLockInMySQL?userId=3&productId=2
+
+
+2. 用redis事务来实现更新库存的操作（需要redis稳定可靠， 比如redis需要是集群的，  适合于超大型互联网项目），测试链接
+
+http://localhost:26000/seckill/baseOnRedisWatchSimple?userId=3&productId=1
+
 ```
 打包
 ```
