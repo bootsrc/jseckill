@@ -189,6 +189,11 @@ public SecKillEnum handleByRedisWatch(Map<String, Object> paramMap) {
 测试地址
 ```
 http://localhost:26000/seckill/baseOnRedisWatchSimple?userId=3&productId=1
+
+
+乐观锁方式进行秒杀测试
+
+http://localhost:26000/seckill/posiLockInMySQL?userId=3&productId=2
 ```
 打包
 ```

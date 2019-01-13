@@ -7,7 +7,7 @@
 
 	<update id="updatePessLockInMySQL">
 		update seckill_product set stock=stock-1
-			where id=#{id} and stock>0
+			where id=#{id} and stock>0 FOR UPDATE
 	</update>
 
 	<update id="updatePosiLockInMySQL">
@@ -28,11 +28,11 @@
 	</select>
 
 	<select id="getProductById" resultType="Product">
-		select * from product WHERE id=#{id}
+		select * from seckill_product WHERE id=#{id}
 	</select>
 
 	<insert id="insertRecord" useGeneratedKeys="true" keyProperty="id">
-		insert into record(userId, productId, state, stateInfo, createTime)
+		insert into seckill_record(userId, productId, state, stateInfo, createTime)
 			values(#{user.id}, #{product.id}, #{state}, #{stateInfo}, #{createTime})
 	</insert>
 

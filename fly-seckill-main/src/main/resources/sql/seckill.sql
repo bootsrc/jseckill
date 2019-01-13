@@ -1,4 +1,4 @@
-use flylib_1;
+use fly_seckill;
 
 DROP TABLE IF EXISTS seckill_user;
 CREATE TABLE seckill_user(
