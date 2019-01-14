@@ -3,7 +3,7 @@ package com.liushaoming.jseckill.backend.entity;
 import java.util.Date;
 
 /**
- * Created by zhangyijun on 15/10/5.
+ * Created by liushaoming on 15/10/5.
  */
 public class SuccessKilled {
 

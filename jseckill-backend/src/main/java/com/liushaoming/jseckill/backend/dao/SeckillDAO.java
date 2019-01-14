@@ -7,9 +7,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by zhangyijun on 15/10/5.
- */
 public interface SeckillDAO {
 
     /**
