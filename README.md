@@ -3,7 +3,8 @@
 演示地址<br/>
 👉 [http://seckill.appjishu.com](http://seckill.appjishu.com)
 
-
+**Star me on GitHub** <br/>
+🐱 [https://github.com/liushaoming/jseckill](https://github.com/liushaoming/jseckill) <br/>
 ## 演示
 ![](doc/image/demo-1.jpg)  &nbsp;&nbsp; ![](doc/image/demo-2.jpg) 
 <br/>
@@ -35,5 +36,11 @@
 👉 [http://seckill.appjishu.com](http://seckill.appjishu.com) <br/>
 
 秒杀系统最能提升自己的高并发技术编程能力  
+
 现在工作略忙，后面抽空完善技术文档。请**star此项目，以持续关注**<br/>
-📌⭐⭐⭐❤❤❤
+📌⭐⭐⭐❤❤❤ <br/>
+**Star me on GitHub** <br/>
+🐱 [https://github.com/liushaoming/jseckill](https://github.com/liushaoming/jseckill) <br/>
+
+加群讨论 <br/>
+![](doc/image/group-qrcode.png)
