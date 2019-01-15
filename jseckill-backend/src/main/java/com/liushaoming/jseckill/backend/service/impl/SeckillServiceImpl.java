@@ -100,6 +100,7 @@ public class SeckillServiceImpl implements SeckillService {
     public SeckillExecution executeSeckill(long seckillId, long userPhone, String md5)
             throws SeckillException, RepeatKillException, SeckillCloseException {
         if (md5 == null || !md5.equals(getMD5(seckillId))) {
+            logger.info("seckill data rewrite!!!. seckillId={},userPhone={}", seckillId, userPhone);
             throw new SeckillException("seckill data rewrite");
         }
         //执行秒杀逻辑:减库存 + 记录购买行为
@@ -111,6 +112,7 @@ public class SeckillServiceImpl implements SeckillService {
             //唯一:seckillId,userPhone
             if (insertCount <= 0) {
                 //重复秒杀
+                logger.info("seckill repeated. seckillId={},userPhone={}", seckillId, userPhone);
                 throw new RepeatKillException("seckill repeated");
             } else {
                 //减库存,热点商品竞争
@@ -121,6 +123,7 @@ public class SeckillServiceImpl implements SeckillService {
                 } else {
                     //秒杀成功 commit
                     SuccessKilled successKilled = successKilledDAO.queryByIdWithSeckill(seckillId, userPhone);
+                    logger.info("seckill SUCCESS->>>. seckillId={},userPhone={}", seckillId, userPhone);
                     return new SeckillExecution(seckillId, SeckillStateEnum.SUCCESS, successKilled);
                 }
             }
