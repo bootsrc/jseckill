@@ -5,9 +5,7 @@
 
 
 ## 演示
-![](doc/image/demo-1.png) ![](doc/image/demo-2.png) ![](doc/image/demo-3.png)
-
-
+![](doc/image/demo-1.jpg)  &nbsp;&nbsp; ![](doc/image/demo-2.jpg) &nbsp;&nbsp; ![](doc/image/demo-3.jpg)
 
 
 ## 技术栈
