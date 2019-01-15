@@ -5,7 +5,10 @@
 
 
 ## 演示
-![](doc/image/demo-1.jpg)  &nbsp;&nbsp; ![](doc/image/demo-2.jpg) &nbsp;&nbsp; ![](doc/image/demo-3.jpg)
+![](doc/image/demo-1.jpg)  &nbsp;&nbsp; ![](doc/image/demo-2.jpg) 
+<br/>
+<br/>
+![](doc/image/demo-3.jpg)
 
 
 ## 技术栈
