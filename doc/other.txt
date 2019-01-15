@@ -1,0 +1,3 @@
+
+怎么在别的网站上引用github项目中的图片
+https://raw.githubusercontent.com/liushaoming/jseckill/master/doc/image/demo-1.jpg
