@@ -3,7 +3,7 @@
 
 
 <head>
-    <title>秒杀列表页</title>
+    <title>jseckill秒杀-高并发技术研究</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- 引入 Bootstrap -->
     <link href="http://apps.bdimg.com/libs/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet">
@@ -18,10 +18,21 @@
 </head>
 <body>
 <!-- 页面显示部分 -->
+
+<div class="locate">
+    <div class="detail-grid">
+        <a href="https://github.com/liushaoming/jseckill" target="_blank">
+            　　<img style="position: fixed; top: -7px; right: -7px; border: 0;"
+                   src="/image/sys/forkme.png" alt="Fork me on GitHub"
+                   data-canonical-src="/image/sys/forkme.png">
+        </a>
+    </div>
+</div>
+
 <div class="container">
     <div class="panel panel-default">
         <div class="panel-heading text-center">
-            <h2>秒杀列表</h2>
+            <h2>jseckill秒杀-高并发技术研究</h2>
         </div>
         <div class="panel-body">
             <table class="table table-hover">
@@ -40,21 +51,24 @@
                     <td th:text="${sk.name}"></td>
                     <td th:text="${sk.number}"></td>
 
-                    <td th:text="${#dates.format(sk.startTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
-                    <td th:text="${#dates.format(sk.endTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
-                    <td th:text="${#dates.format(sk.createTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                    <td th:text="${#dates.format(sk.startTime, 'yyyy-MM-dd HH:mm')}"></td>
+                    <td th:text="${#dates.format(sk.endTime, 'yyyy-MM-dd HH:mm')}"></td>
+                    <td th:text="${#dates.format(sk.createTime, 'yyyy-MM-dd HH:mm')}"></td>
                     <td>
                         <a class="btn btn-info" th:href=" '/seckill/detail/' + ${sk.seckillId} "
-                           target="_blank">马上秒杀</a>
+                           target="_blank">秒杀</a>
                     </td>
                 </tr>
-
                 </tbody>
             </table>
         </div>
     </div>
+    <br/>
+    <div>
+        <b>进入GitHUb查看源码</b> <br/>
+        👉 <a href="https://github.com/liushaoming/jseckill" target="_blank">https://github.com/liushaoming/jseckill</a>
+    </div>
 </div>
-
 
 </body>
 <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
