@@ -35,6 +35,10 @@
 
 5.Java应用部署多个集群节点，之间使用nginx做负载均衡和反向代理，提高客户端的并发数
 
+## 源码和架构解析
+
+👉 [源码解析](SOURCE-README.md)
+
 ## 未完待续
 演示地址<br/>
 👉 [http://seckill.appjishu.com](http://seckill.appjishu.com) <br/>

@@ -1,62 +1,35 @@
-package com.liushaoming.jseckill.backend.service.impl;
+# jseckill源码解析
 
-import com.liushaoming.jseckill.backend.dao.SeckillDAO;
-import com.liushaoming.jseckill.backend.dao.SuccessKilledDAO;
-import com.liushaoming.jseckill.backend.dao.cache.RedisDAO;
-import com.liushaoming.jseckill.backend.dto.Exposer;
-import com.liushaoming.jseckill.backend.dto.SeckillExecution;
-import com.liushaoming.jseckill.backend.entity.Seckill;
-import com.liushaoming.jseckill.backend.entity.SuccessKilled;
-import com.liushaoming.jseckill.backend.enums.SeckillStateEnum;
-import com.liushaoming.jseckill.backend.exception.RepeatKillException;
-import com.liushaoming.jseckill.backend.exception.SeckillCloseException;
-import com.liushaoming.jseckill.backend.exception.SeckillException;
-import com.liushaoming.jseckill.backend.service.SeckillService;
-import org.apache.commons.collections.MapUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.DigestUtils;
+## 1.总体架构
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+系统部署图
+<br/><br/><br/><br/>
+![](doc/image/arch-1.jpg)
+<br/>
+<br/>
 
-/**
- * @author liushaoming
- */
-@Service
-public class SeckillServiceImpl implements SeckillService {
+秒杀网站的静态资源，比如静态网页引用的js，css，图片，音频，视频等放到CDN（内容分发网络）上。<br/>
+如果小型互联网公司为了减少成本，可以把静态资源部署到nginx下。利用nginx提供静态资源服务的高并发性能<br/>
+的特点，可以最大可能的提高静态资源的访问速度。
+<br/>
+通过nginx反向代理，对外只暴露80端口。同时配置nginx的负载均衡，为多个jseckill-backend集群节点提供<br/>
+负载均衡。 负载均衡策略设置成按照几台应用服务器的性能大小的权重分配就行了。
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+MySQl部署采用Master-Slave主从复制方式来做读写分离, 提高数据库的高并发能力。
 
-    //注入Service依赖
-    @Autowired
-    private SeckillDAO seckillDAO;
+## 2.后端暴露秒杀接口
 
-    @Autowired
-    private SuccessKilledDAO successKilledDAO;
+暴露秒杀接口数据，属于热点数据，并且值是不变的（库存量除外）, 我们把它存在Redis上，Redis是基于内存的
+<br/>
+非阻塞性多路复用，采用了epool技术，操作数据远远快于磁盘和数据库操作。<br/>
+代码见<code>SeckillServiceImpl.java</code>的方法<code>public Exposer exportSeckillUrl(long seckillId)</code>
+<br/>
+存Redis前，先用Protostuff框架把对Seckill对象序列化成二进制字节码
+<br/>
 
-    @Autowired
-    private RedisDAO redisDAO;
-
-    //md5盐值字符串,用于混淆MD5
-    private final String salt = "aksksks*&&^%%aaaa&^^%%*";
-
-    @Override
-    public List<Seckill> getSeckillList() {
-        return seckillDAO.queryAll(0, 4);
-    }
-
-    @Override
-    public Seckill getById(long seckillId) {
-        return seckillDAO.queryById(seckillId);
-    }
-
-    @Override
+源码<br/>
+```java
+@Override
     public Exposer exportSeckillUrl(long seckillId) {
         // 优化点:缓存优化:超时的基础上维护一致性
         //1.访问Redis
@@ -85,14 +58,20 @@ public class SeckillServiceImpl implements SeckillService {
         String md5 = getMD5(seckillId);
         return new Exposer(true, md5, seckillId);
     }
+```
 
-    private String getMD5(long seckillId) {
-        String base = seckillId + "/" + salt;
-        String md5 = DigestUtils.md5DigestAsHex(base.getBytes());
-        return md5;
-    }
+## 3.后端秒杀处理
 
-    @Override
+源码见<code>SeckillServiceImpl.java</code>
+原理是:<br/>
+在<code>public SeckillExecution executeSeckill(long seckillId, long userPhone, String md5)</code><br/>
+里，先<code>insertSuccessKilled()</code>，<code>再reduceNumber()</code> <br/>
+<b>先插入秒杀记录，再减库存。 这样行锁只作用于减库存一个阶段，提高了操作数据库的并发性能。</b> <br/>
+（否则如果先减库存，再插入秒杀记录，则update操作产生的行锁会持续整个事务时间阶段，性能差）
+<br/>
+源码<br/>
+```java
+@Override
     @Transactional
     /**
      * 先插入秒杀记录再减库存
@@ -139,4 +118,5 @@ public class SeckillServiceImpl implements SeckillService {
             throw new SeckillException("seckill inner error:" + e.getMessage());
         }
     }
-}
+```
+<br/>
