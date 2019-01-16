@@ -1,6 +1,10 @@
 # jseckill
-电商秒杀程序, 乐观锁，Spring Boot.<br/>
-演示地址<br/>
+电商秒杀程序, 乐观锁，Spring Boot.
+<br/>
+如果该项目对您有帮忙，您可以<b>右上角'star'支持一下</b>，谢谢！
+<br/>
+演示地址
+<br/>
 👉 [http://seckill.appjishu.com](http://seckill.appjishu.com)
 
 **Star me on GitHub** <br/>
@@ -40,7 +44,10 @@
 现在工作略忙，后面抽空完善技术文档。请**star此项目，以持续关注**<br/>
 📌⭐⭐⭐❤❤❤ <br/>
 **Star me on GitHub** <br/>
-🐱 [https://github.com/liushaoming/jseckill](https://github.com/liushaoming/jseckill) <br/>
-
-加群讨论 <br/>
+🐱 [https://github.com/liushaoming/jseckill](https://github.com/liushaoming/jseckill) 
+<br/>
+如果该项目对您有帮忙，您可以<b>右上角'star'支持一下</b>，谢谢！
+<br/>
+加群讨论 
+<br/>
 ![](doc/image/group-qrcode.png)
