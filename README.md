@@ -1,7 +1,7 @@
 # jseckill
 电商秒杀程序, 乐观锁，Spring Boot.
 <br/>
-如果该项目对您有帮忙，您可以<b>右上角'star'支持一下</b>，谢谢！
+<b>如果该项目对您有帮忙，您可以右上角'star'支持一下，谢谢！</b>
 <br/>
 演示地址
 <br/>
@@ -46,7 +46,7 @@
 **Star me on GitHub** <br/>
 🐱 [https://github.com/liushaoming/jseckill](https://github.com/liushaoming/jseckill) 
 <br/>
-如果该项目对您有帮忙，您可以<b>右上角'star'支持一下</b>，谢谢！
+<b>如果该项目对您有帮忙，您可以右上角'star'支持一下，谢谢！</b>
 <br/>
 加群讨论 
 <br/>
