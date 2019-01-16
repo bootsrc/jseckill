@@ -48,6 +48,8 @@
 <br/>
 <b>如果该项目对您有帮忙，您可以右上角'star'支持一下，谢谢！</b>
 <br/>
+有代码改进优化的建议的可以提issue
+<br/>
 加群讨论 
 <br/>
 ![](doc/image/group-qrcode.png)
