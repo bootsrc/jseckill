@@ -9,6 +9,11 @@
 
 **Star me on GitHub** <br/>
 🐱 [https://github.com/liushaoming/jseckill](https://github.com/liushaoming/jseckill) <br/>
+<br/>
+
+👉 [源码解析文档](SOURCE-README.md)
+<br/><br/>
+
 ## 演示
 ![](doc/image/demo-1.jpg)  &nbsp;&nbsp; ![](doc/image/demo-2.jpg) 
 <br/>
@@ -34,10 +39,7 @@
 动静分离:把静态资源（js,css，图片）直接部署放到nginx， 动态服务还在原有的tomcat/SpringBoot里。
 
 5.Java应用部署多个集群节点，之间使用nginx做负载均衡和反向代理，提高客户端的并发数
-
-## 源码和架构解析
-
-👉 [源码解析](SOURCE-README.md)
+<br/>
 
 ## 未完待续
 演示地址<br/>
