@@ -95,7 +95,7 @@ public class SeckillServiceImpl implements SeckillService {
     public SeckillExecution executeSeckill(long seckillId, long userPhone, String md5)
             throws SeckillException {
         if (md5 == null || !md5.equals(getMD5(seckillId))) {
-            logger.info("seckill data rewrite!!!. seckillId={},userPhone={}", seckillId, userPhone);
+            logger.info("seckill_DATA_REWRITE!!!. seckillId={},userPhone={}", seckillId, userPhone);
             throw new SeckillException(SeckillStateEnum.DATA_REWRITE);
         }
         //执行秒杀逻辑:减库存 + 记录购买行为
@@ -104,11 +104,11 @@ public class SeckillServiceImpl implements SeckillService {
         try {
             //插入秒杀记录(记录购买行为)
             //这处， seckill_record的id等于这个特定id的行被启用了行锁,   但是其他的事务可以insert另外一行， 不会阻止其他事务里对这个表的insert操作
-            int insertCount = successKilledDAO.insertSuccessKilled(seckillId, userPhone);
+            int insertCount = successKilledDAO.insertSuccessKilled(seckillId, userPhone, nowTime);
             //唯一:seckillId,userPhone
             if (insertCount <= 0) {
                 //重复秒杀
-                logger.info("seckill repeated. seckillId={},userPhone={}", seckillId, userPhone);
+                logger.info("seckill REPEATED. seckillId={},userPhone={}", seckillId, userPhone);
                 throw new SeckillException(SeckillStateEnum.REPEAT_KILL);
             } else {
                 //减库存,热点商品竞争
@@ -118,7 +118,7 @@ public class SeckillServiceImpl implements SeckillService {
                 if (currentSeckill != null) {
                     long nowStamp = nowTime.getTime();
                     if (nowStamp > currentSeckill.getStartTime().getTime() && nowStamp < currentSeckill.getEndTime().getTime()
-                            && currentSeckill.getNumber() > 0 && currentSeckill.getVersion() > 0) {
+                            && currentSeckill.getNumber() > 0 && currentSeckill.getVersion() > -1) {
                         validTime = true;
                     }
                 }
@@ -129,9 +129,7 @@ public class SeckillServiceImpl implements SeckillService {
                     int updateCount = seckillDAO.reduceNumber(seckillId, oldVersion, oldVersion + 1);
                     if (updateCount <= 0) {
                         //没有更新到记录，秒杀结束,rollback
-//                        throw new SeckillCloseException("seckill is closed");
-                        //
-                        logger.error("数据库并发错误", "数据库并发错误");
+                        logger.info("seckill_DATABASE_CONCURRENCY_ERROR!!!. seckillId={},userPhone={}", seckillId, userPhone);
                         throw new SeckillException(SeckillStateEnum.CONCURRENCY_ERROR);
                     } else {
                         //秒杀成功 commit
@@ -142,6 +140,7 @@ public class SeckillServiceImpl implements SeckillService {
                         // update结束，行锁被取消  。reduceNumber()被执行前后数据行被锁定, 其他的事务无法写这一行。
                     }
                 } else {
+                    logger.info("seckill_END. seckillId={},userPhone={}", seckillId, userPhone);
                     throw new SeckillException(SeckillStateEnum.END);
                 }
             }

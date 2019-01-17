@@ -5,8 +5,8 @@
 <mapper namespace="com.liushaoming.jseckill.backend.dao.SuccessKilledDAO">
     <insert id="insertSuccessKilled">
         <!-- 主键冲突,报错 -->
-        insert ignore into success_killed(seckill_id,user_phone,state)
-        values (#{seckillId},#{userPhone},0)
+        insert ignore into success_killed(seckill_id, user_phone, state, create_time)
+        values (#{seckillId}, #{userPhone}, 0, #{nowTime})
     </insert>
     <select id="queryByIdWithSeckill" resultType="SuccessKilled">
         <!-- 根据id查询SuccessKilled并携带Seckill实体 -->

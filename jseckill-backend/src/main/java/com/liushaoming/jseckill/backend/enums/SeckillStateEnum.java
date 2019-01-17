@@ -19,7 +19,6 @@ public enum SeckillStateEnum {
     CONCURRENCY_ERROR(-4, "数据库并发错误");
 
     private int state;
-
     private String stateInfo;
 
     SeckillStateEnum(int state, String stateInfo) {

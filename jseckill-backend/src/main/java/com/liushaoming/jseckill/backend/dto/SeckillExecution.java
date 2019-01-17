@@ -31,10 +31,10 @@ public class SeckillExecution {
                 '}';
     }
 
-    public SeckillExecution(long seckillId, SeckillStateEnum statEnum, SuccessKilled successKilled) {
+    public SeckillExecution(long seckillId, SeckillStateEnum stateEnum, SuccessKilled successKilled) {
         this.seckillId = seckillId;
-        this.state = statEnum.getState();
-        this.stateInfo = statEnum.getStateInfo();
+        this.state = stateEnum.getState();
+        this.stateInfo = stateEnum.getStateInfo();
         this.successKilled = successKilled;
     }
 

@@ -1,11 +1,14 @@
 package com.liushaoming.jseckill.backend.dto;
 
+import java.io.Serializable;
+
 /**
  * 暴露秒杀地址DTO
  * Created by liushaoming on 2019-01-14.
  */
-public class Exposer {
+public class Exposer implements Serializable {
 
+    private static final long serialVersionUID = 3945522124434282652L;
     //是否开启秒杀
     private boolean exposed;
 
