@@ -11,14 +11,17 @@ public interface SeckillDAO {
 
     /**
      * 减库存,
+     *
      * @param seckillId
      * @param killTime
      * @return 如果影响行数>1，表示更新的记录行数
      */
-    int reduceNumber(@Param("seckillId") long seckillId,@Param("killTime") Date killTime);
+    int reduceNumber(@Param("seckillId") long seckillId, @Param("oldVersion") long oldVersion,
+                     @Param("newVersion") long newVersion);
 
     /**
      * 根据id查询秒杀对象
+     *
      * @param seckillId
      * @return
      */
@@ -26,6 +29,7 @@ public interface SeckillDAO {
 
     /**
      * 根据偏移量查询秒杀商品列表
+     *
      * @param offet
      * @param limit
      * @return
@@ -34,8 +38,9 @@ public interface SeckillDAO {
 
     /**
      * 使用存储过程执行秒杀
+     *
      * @param paramMap
      */
-    void killByProcedure(Map<String,Object> paramMap);
+    void killByProcedure(Map<String, Object> paramMap);
 
 }

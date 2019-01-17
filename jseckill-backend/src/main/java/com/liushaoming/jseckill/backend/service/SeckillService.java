@@ -3,8 +3,6 @@ package com.liushaoming.jseckill.backend.service;
 import com.liushaoming.jseckill.backend.dto.Exposer;
 import com.liushaoming.jseckill.backend.dto.SeckillExecution;
 import com.liushaoming.jseckill.backend.entity.Seckill;
-import com.liushaoming.jseckill.backend.exception.RepeatKillException;
-import com.liushaoming.jseckill.backend.exception.SeckillCloseException;
 import com.liushaoming.jseckill.backend.exception.SeckillException;
 
 import java.util.List;

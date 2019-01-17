@@ -6,19 +6,15 @@ import java.util.Date;
 /**
  * Created by liushaoming on 15/10/5.
  */
-public class Seckill {
-
+public class Seckill implements Serializable {
+    private static final long serialVersionUID = -5161466177783266963L;
     private long seckillId;
-
     private String name;
-
     private int number;
-
     private Date startTime;
-
     private Date endTime;
-
     private Date createTime;
+    private long version;
 
     public long getSeckillId() {
         return seckillId;
@@ -68,6 +64,14 @@ public class Seckill {
         this.createTime = createTime;
     }
 
+    public long getVersion() {
+        return version;
+    }
+
+    public void setVersion(long version) {
+        this.version = version;
+    }
+
     @Override
     public String toString() {
         return "Seckill{" +
@@ -77,6 +81,7 @@ public class Seckill {
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
                 ", createTime=" + createTime +
+                ", version=" + version +
                 '}';
     }
 }

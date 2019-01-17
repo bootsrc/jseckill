@@ -1,14 +1,12 @@
 package com.liushaoming.jseckill.backend.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.liushaoming.jseckill.backend.dao.SeckillDAO;
 import com.liushaoming.jseckill.backend.dto.Exposer;
 import com.liushaoming.jseckill.backend.dto.SeckillExecution;
 import com.liushaoming.jseckill.backend.dto.SeckillResult;
 import com.liushaoming.jseckill.backend.entity.Seckill;
 import com.liushaoming.jseckill.backend.enums.SeckillStateEnum;
-import com.liushaoming.jseckill.backend.exception.RepeatKillException;
-import com.liushaoming.jseckill.backend.exception.SeckillCloseException;
+import com.liushaoming.jseckill.backend.exception.SeckillException;
 import com.liushaoming.jseckill.backend.service.SeckillService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,11 +87,8 @@ public class SeckillController {
         try {
             SeckillExecution execution = seckillService.executeSeckill(seckillId, phone, md5);
             return new SeckillResult<SeckillExecution>(true, execution);
-        } catch (RepeatKillException e) {
-            SeckillExecution execution = new SeckillExecution(seckillId, SeckillStateEnum.REPEAT_KILL);
-            return new SeckillResult<SeckillExecution>(true, execution);
-        } catch (SeckillCloseException e) {
-            SeckillExecution execution = new SeckillExecution(seckillId, SeckillStateEnum.END);
+        } catch (SeckillException e1) {
+            SeckillExecution execution = new SeckillExecution(seckillId, e1.getSeckillStateEnum());
             return new SeckillResult<SeckillExecution>(true, execution);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

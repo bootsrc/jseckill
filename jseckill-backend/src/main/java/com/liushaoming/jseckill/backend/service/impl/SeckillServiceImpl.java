@@ -8,11 +8,8 @@ import com.liushaoming.jseckill.backend.dto.SeckillExecution;
 import com.liushaoming.jseckill.backend.entity.Seckill;
 import com.liushaoming.jseckill.backend.entity.SuccessKilled;
 import com.liushaoming.jseckill.backend.enums.SeckillStateEnum;
-import com.liushaoming.jseckill.backend.exception.RepeatKillException;
-import com.liushaoming.jseckill.backend.exception.SeckillCloseException;
 import com.liushaoming.jseckill.backend.exception.SeckillException;
 import com.liushaoming.jseckill.backend.service.SeckillService;
-import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author liushaoming
@@ -98,45 +93,64 @@ public class SeckillServiceImpl implements SeckillService {
      * 先插入秒杀记录再减库存
      */
     public SeckillExecution executeSeckill(long seckillId, long userPhone, String md5)
-            throws SeckillException, RepeatKillException, SeckillCloseException {
+            throws SeckillException {
         if (md5 == null || !md5.equals(getMD5(seckillId))) {
             logger.info("seckill data rewrite!!!. seckillId={},userPhone={}", seckillId, userPhone);
-            throw new SeckillException("seckill data rewrite");
+            throw new SeckillException(SeckillStateEnum.DATA_REWRITE);
         }
         //执行秒杀逻辑:减库存 + 记录购买行为
         Date nowTime = new Date();
 
         try {
             //插入秒杀记录(记录购买行为)
+            //这处， seckill_record的id等于这个特定id的行被启用了行锁,   但是其他的事务可以insert另外一行， 不会阻止其他事务里对这个表的insert操作
             int insertCount = successKilledDAO.insertSuccessKilled(seckillId, userPhone);
             //唯一:seckillId,userPhone
             if (insertCount <= 0) {
                 //重复秒杀
                 logger.info("seckill repeated. seckillId={},userPhone={}", seckillId, userPhone);
-                throw new RepeatKillException("seckill repeated");
+                throw new SeckillException(SeckillStateEnum.REPEAT_KILL);
             } else {
                 //减库存,热点商品竞争
                 // reduceNumber是update操作，开启作用在表seckill上的行锁
-                int updateCount = seckillDAO.reduceNumber(seckillId, nowTime);
-                if (updateCount <= 0) {
-                    //没有更新到记录，秒杀结束,rollback
-                    throw new SeckillCloseException("seckill is closed");
+                Seckill currentSeckill = seckillDAO.queryById(seckillId);
+                boolean validTime = false;
+                if (currentSeckill != null) {
+                    long nowStamp = nowTime.getTime();
+                    if (nowStamp > currentSeckill.getStartTime().getTime() && nowStamp < currentSeckill.getEndTime().getTime()
+                            && currentSeckill.getNumber() > 0 && currentSeckill.getVersion() > 0) {
+                        validTime = true;
+                    }
+                }
+
+                if (validTime) {
+                    long oldVersion = currentSeckill.getVersion();
+                    // update操作开始，表seckill的seckill_id等于seckillId的行被启用了行锁,   其他的事务无法update这一行， 可以update其他行
+                    int updateCount = seckillDAO.reduceNumber(seckillId, oldVersion, oldVersion + 1);
+                    if (updateCount <= 0) {
+                        //没有更新到记录，秒杀结束,rollback
+//                        throw new SeckillCloseException("seckill is closed");
+                        //
+                        logger.error("数据库并发错误", "数据库并发错误");
+                        throw new SeckillException(SeckillStateEnum.CONCURRENCY_ERROR);
+                    } else {
+                        //秒杀成功 commit
+                        SuccessKilled successKilled = successKilledDAO.queryByIdWithSeckill(seckillId, userPhone);
+                        logger.info("seckill SUCCESS->>>. seckillId={},userPhone={}", seckillId, userPhone);
+                        return new SeckillExecution(seckillId, SeckillStateEnum.SUCCESS, successKilled);
+                        //return后，事务结束，关闭作用在表seckill上的行锁
+                        // update结束，行锁被取消  。reduceNumber()被执行前后数据行被锁定, 其他的事务无法写这一行。
+                    }
                 } else {
-                    //秒杀成功 commit
-                    SuccessKilled successKilled = successKilledDAO.queryByIdWithSeckill(seckillId, userPhone);
-                    logger.info("seckill SUCCESS->>>. seckillId={},userPhone={}", seckillId, userPhone);
-                    //事务结束，关闭作用在表seckill上的行锁
-                    return new SeckillExecution(seckillId, SeckillStateEnum.SUCCESS, successKilled);
+                    throw new SeckillException(SeckillStateEnum.END);
                 }
             }
-        } catch (SeckillCloseException e1) {
+        } catch (SeckillException e1) {
             throw e1;
-        } catch (RepeatKillException e2) {
-            throw e2;
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             //  所有编译期异常 转化为运行期异常
-            throw new SeckillException("seckill inner error:" + e.getMessage());
+            throw new SeckillException(SeckillStateEnum.INNER_ERROR);
         }
     }
 }

@@ -10,11 +10,12 @@
         update
           seckill
         set
-          number = number - 1
+          number = number - 1,
+          version = newVersion
         where seckill_id = #{seckillId}
-        and start_time <![CDATA[ <= ]]> #{killTime}
-        and end_time >= #{killTime}
-        and number > 0;
+        and version = #{oldVersion}
+
+        ;
     </update>
 
     <select id="queryById" resultType="Seckill" parameterType="long">
