@@ -9,6 +9,7 @@ import com.liushaoming.jseckill.backend.entity.Seckill;
 import com.liushaoming.jseckill.backend.entity.SuccessKilled;
 import com.liushaoming.jseckill.backend.enums.SeckillStateEnum;
 import com.liushaoming.jseckill.backend.exception.SeckillException;
+import com.liushaoming.jseckill.backend.service.AccessLimitService;
 import com.liushaoming.jseckill.backend.service.SeckillService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,12 +32,12 @@ public class SeckillServiceImpl implements SeckillService {
     //注入Service依赖
     @Autowired
     private SeckillDAO seckillDAO;
-
     @Autowired
     private SuccessKilledDAO successKilledDAO;
-
     @Autowired
     private RedisDAO redisDAO;
+    @Autowired
+    private AccessLimitService accessLimitService;
 
     //md5盐值字符串,用于混淆MD5
     private final String salt = "aksksks*&&^%%aaaa&^^%%*";
@@ -90,9 +91,22 @@ public class SeckillServiceImpl implements SeckillService {
     @Override
     @Transactional
     /**
+     * 执行秒杀
+     */
+    public SeckillExecution executeSeckill(long seckillId, long userPhone, String md5) throws SeckillException {
+        if (accessLimitService.tryAcquireSeckill()) {   // 如果没有被限流器限制，则执行秒杀处理
+            return updateStock(seckillId, userPhone, md5);
+        } else {    //如果被限流器限制，直接抛出访问限制的异常
+            logger.info("--->ACCESS_LIMITED-->seckillId={},userPhone={}", seckillId, userPhone);
+            throw new SeckillException(SeckillStateEnum.ACCESS_LIMIT);
+        }
+    }
+
+    @Transactional
+    /**
      * 先插入秒杀记录再减库存
      */
-    public SeckillExecution executeSeckill(long seckillId, long userPhone, String md5)
+    public SeckillExecution updateStock(long seckillId, long userPhone, String md5)
             throws SeckillException {
         if (md5 == null || !md5.equals(getMD5(seckillId))) {
             logger.info("seckill_DATA_REWRITE!!!. seckillId={},userPhone={}", seckillId, userPhone);
@@ -130,7 +144,7 @@ public class SeckillServiceImpl implements SeckillService {
                     if (updateCount <= 0) {
                         //没有更新到记录，秒杀结束,rollback
                         logger.info("seckill_DATABASE_CONCURRENCY_ERROR!!!. seckillId={},userPhone={}", seckillId, userPhone);
-                        throw new SeckillException(SeckillStateEnum.CONCURRENCY_ERROR);
+                        throw new SeckillException(SeckillStateEnum.DB_CONCURRENCY_ERROR);
                     } else {
                         //秒杀成功 commit
                         SuccessKilled successKilled = successKilledDAO.queryByIdWithSeckill(seckillId, userPhone);

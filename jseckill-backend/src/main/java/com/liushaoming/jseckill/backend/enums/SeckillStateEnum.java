@@ -5,18 +5,23 @@ package com.liushaoming.jseckill.backend.enums;
  * Created by liushaoming on 2019-01-14.
  */
 public enum SeckillStateEnum {
-    SUCCESS(1,"秒杀成功"),
-    END(0,"秒杀结束"),
-    REPEAT_KILL(-1,"重复秒杀"),
+    SUCCESS(1, "秒杀成功"),
+    END(0, "秒杀结束"),
+    REPEAT_KILL(-1, "重复秒杀"),
     /**
-     * 运行时才能检测到的所有异常
+     * 运行时才能检测到的所有异常-系统异常
      */
-    INNER_ERROR(-2,"系统内部异常"),
+    INNER_ERROR(-2, "很遗憾没抢到，请再次抢购"),
     /**
      * md5错误的数据篡改
      */
-    DATA_REWRITE(-3,"数据篡改"),
-    CONCURRENCY_ERROR(-4, "数据库并发错误");
+    DATA_REWRITE(-3, "数据篡改"),
+
+    DB_CONCURRENCY_ERROR(-4, "很遗憾没抢到，请再次抢购"),
+    /**
+     * 被AccessLimitService限流了
+     */
+    ACCESS_LIMIT(-5, "很遗憾没抢到，请再次抢购");
 
     private int state;
     private String stateInfo;
