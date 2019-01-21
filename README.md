@@ -10,8 +10,6 @@
 **Star me on GitHub** <br/>
 🐱 [https://github.com/liushaoming/jseckill](https://github.com/liushaoming/jseckill) 
 <br/>               
-<br/>
-
 👉 [源码解析文档](SOURCE-README.md)
 <br/><br/>
 
