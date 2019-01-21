@@ -9,12 +9,7 @@
 
 **Star me on GitHub** <br/>
 🐱 [https://github.com/liushaoming/jseckill](https://github.com/liushaoming/jseckill) <br/>
-
-<iframe src="https://ghbtns.com/github-btn.html?user=liushaoming&repo=jseckill&type=star&count=true&size=large"
-frameborder="0" scrolling="0" width="160px" height="30px"></iframe>
-<iframe src="https://ghbtns.com/github-btn.html?user=liushaoming&repo=jseckill&type=fork&count=true&size=large"
-frameborder="0" scrolling="0" width="158px" height="30px"></iframe>
-                
+               
 <br/>
 
 👉 [源码解析文档](SOURCE-README.md)
