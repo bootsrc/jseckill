@@ -5,7 +5,7 @@
 <br/>
 演示地址
 <br/>
-👉 [http://seckill.appjishu.com](http://seckill.appjishu.com)
+👉 [http://jseckill.appjishu.com](http://jseckill.appjishu.com)
 
 **Star me on GitHub** <br/>
 🐱 [https://github.com/liushaoming/jseckill](https://github.com/liushaoming/jseckill) <br/>
@@ -45,7 +45,7 @@
 
 ## 未完待续
 演示地址<br/>
-👉 [http://seckill.appjishu.com](http://seckill.appjishu.com) <br/>
+👉 [http://jseckill.appjishu.com](http://jseckill.appjishu.com) <br/>
 
 秒杀系统最能提升自己的高并发技术编程能力  
 
