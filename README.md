@@ -8,8 +8,8 @@
 👉 [http://jseckill.appjishu.com](http://jseckill.appjishu.com)
 
 **Star me on GitHub** <br/>
-🐱 [https://github.com/liushaoming/jseckill](https://github.com/liushaoming/jseckill) <br/>
-               
+🐱 [https://github.com/liushaoming/jseckill](https://github.com/liushaoming/jseckill) 
+<br/>               
 <br/>
 
 👉 [源码解析文档](SOURCE-README.md)
@@ -57,6 +57,7 @@
 <br/>
 <b>如果该项目对您有帮忙，您可以右上角'star'支持一下，谢谢！</b>
 <br/>
+
 有代码改进优化的建议的可以提issue
 <br/>
 加群讨论 
