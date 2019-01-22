@@ -1,9 +1,11 @@
 package com.liushaoming.jseckill.backend.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.liushaoming.jseckill.backend.dao.SeckillDAO;
 import com.liushaoming.jseckill.backend.dao.SuccessKilledDAO;
 import com.liushaoming.jseckill.backend.dao.cache.RedisDAO;
 import com.liushaoming.jseckill.backend.dto.Exposer;
+import com.liushaoming.jseckill.backend.dto.MqMsgSeckill;
 import com.liushaoming.jseckill.backend.dto.SeckillExecution;
 import com.liushaoming.jseckill.backend.entity.Seckill;
 import com.liushaoming.jseckill.backend.entity.SuccessKilled;
@@ -38,6 +40,8 @@ public class SeckillServiceImpl implements SeckillService {
     private RedisDAO redisDAO;
     @Autowired
     private AccessLimitService accessLimitService;
+    @Autowired
+    private MqProducer mqProducer;
 
     //md5盐值字符串,用于混淆MD5
     private final String salt = "aksksks*&&^%%aaaa&^^%%*";
@@ -89,32 +93,67 @@ public class SeckillServiceImpl implements SeckillService {
     }
 
     @Override
-    @Transactional
     /**
      * 执行秒杀
      */
     public SeckillExecution executeSeckill(long seckillId, long userPhone, String md5) throws SeckillException {
         if (accessLimitService.tryAcquireSeckill()) {   // 如果没有被限流器限制，则执行秒杀处理
-            return updateStock(seckillId, userPhone, md5);
+            return handleSeckill(seckillId, userPhone, md5);
         } else {    //如果被限流器限制，直接抛出访问限制的异常
             logger.info("--->ACCESS_LIMITED-->seckillId={},userPhone={}", seckillId, userPhone);
             throw new SeckillException(SeckillStateEnum.ACCESS_LIMIT);
         }
     }
 
-    @Transactional
     /**
-     * 先插入秒杀记录再减库存
+     * @param seckillId
+     * @param userPhone
+     * @param md5
+     * @return
+     * @throws SeckillException
+     * @TODO 先在redis里处理，然后发送到mq，最后减库存到数据库
      */
-    public SeckillExecution updateStock(long seckillId, long userPhone, String md5)
+    private SeckillExecution handleSeckillAsync(long seckillId, long userPhone, String md5)
             throws SeckillException {
         if (md5 == null || !md5.equals(getMD5(seckillId))) {
             logger.info("seckill_DATA_REWRITE!!!. seckillId={},userPhone={}", seckillId, userPhone);
             throw new SeckillException(SeckillStateEnum.DATA_REWRITE);
         }
+
+        MqMsgSeckill mqMsgSeckill = new MqMsgSeckill();
+        mqMsgSeckill.setSeckillId(seckillId);
+        mqMsgSeckill.setUserPhone(userPhone);
+        String msgStr = JSON.toJSONString(mqMsgSeckill);
+        mqProducer.sendMessage(msgStr);
+        return doUpdateStock(seckillId, userPhone);
+    }
+
+    /**
+     * 直接在数据库里减库存
+     *
+     * @param seckillId
+     * @param userPhone
+     * @param md5
+     * @return
+     * @throws SeckillException
+     */
+    private SeckillExecution handleSeckill(long seckillId, long userPhone, String md5)
+            throws SeckillException {
+        if (md5 == null || !md5.equals(getMD5(seckillId))) {
+            logger.info("seckill_DATA_REWRITE!!!. seckillId={},userPhone={}", seckillId, userPhone);
+            throw new SeckillException(SeckillStateEnum.DATA_REWRITE);
+        }
+        return doUpdateStock(seckillId, userPhone);
+    }
+
+    /**
+     * 先插入秒杀记录再减库存
+     */
+    @Transactional
+    public SeckillExecution doUpdateStock(long seckillId, long userPhone)
+            throws SeckillException {
         //执行秒杀逻辑:减库存 + 记录购买行为
         Date nowTime = new Date();
-
         try {
             //插入秒杀记录(记录购买行为)
             //这处， seckill_record的id等于这个特定id的行被启用了行锁,   但是其他的事务可以insert另外一行， 不会阻止其他事务里对这个表的insert操作

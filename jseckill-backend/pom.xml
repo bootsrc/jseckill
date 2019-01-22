@@ -16,6 +16,9 @@
 
     <properties>
         <java.version>1.8</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <spring.version>5.1.4.RELEASE</spring.version>
     </properties>
 
     <dependencies>
@@ -83,7 +86,12 @@
             <artifactId>guava</artifactId>
             <version>27.0.1-jre</version>
         </dependency>
-
+        <!--mq配置   start   -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-activemq</artifactId>
+        </dependency>
+        <!--mq配置   end   -->
     </dependencies>
 
     <build>
