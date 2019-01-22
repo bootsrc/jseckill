@@ -10,7 +10,7 @@ Target Server Type    : MariaDB
 Target Server Version : 50560
 File Encoding         : 65001
 
-Date: 2019-01-22 15:46:16
+Date: 2019-01-22 16:06:53
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -21,17 +21,14 @@ SET FOREIGN_KEY_CHECKS=0;
 DROP TABLE IF EXISTS `seckill`;
 CREATE TABLE `seckill` (
   `seckill_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '商品库存id',
-  `name` varchar(120) NOT NULL COMMENT '商品名称',
+  `name` varchar(120) CHARACTER SET utf8 NOT NULL COMMENT '商品名称',
   `number` int(11) NOT NULL COMMENT '库存数量',
   `start_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '秒杀开启时间',
   `end_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '秒杀结束时间',
   `create_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '创建时间',
   `version` bigint(20) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`seckill_id`),
-  KEY `idx_start_time` (`start_time`),
-  KEY `idx_end_time` (`end_time`),
-  KEY `idx_create_time` (`create_time`)
-) ENGINE=InnoDB AUTO_INCREMENT=1004 DEFAULT CHARSET=utf8 COMMENT='秒杀库存表';
+  PRIMARY KEY (`seckill_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1004 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='秒杀库存表';
 
 -- ----------------------------
 -- Records of seckill
