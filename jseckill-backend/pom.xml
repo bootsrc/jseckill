@@ -88,8 +88,13 @@
         </dependency>
         <!--mq配置   start   -->
         <dependency>
+            <groupId>com.rabbitmq</groupId>
+            <artifactId>amqp-client</artifactId>
+            <version>5.3.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-activemq</artifactId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
         </dependency>
         <!--mq配置   end   -->
     </dependencies>

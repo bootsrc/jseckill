@@ -31,6 +31,9 @@ public class SeckillController {
     public String demo() {
         long seckillId = 1000L;
         Seckill seckill = seckillService.getById(seckillId);
+        Thread currentThread = Thread.currentThread();
+        logger.info("thread.hashCode={},id={},name={}"
+                , new Object[]{currentThread.hashCode(), currentThread.getId(), currentThread.getName()});
         return JSON.toJSONString(seckill);
     }
 

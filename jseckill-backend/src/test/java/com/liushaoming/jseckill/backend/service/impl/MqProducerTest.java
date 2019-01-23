@@ -1,5 +1,6 @@
 package com.liushaoming.jseckill.backend.service.impl;
 
+import com.liushaoming.jseckill.backend.mq.MQProducer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,12 +13,12 @@ import static org.junit.Assert.*;
 @SpringBootTest
 public class MqProducerTest {
     @Autowired
-    private MqProducer mqProducer;
+    private MQProducer mqProducer;
 
     @Test
     public void sendMessage() {
         for (int i=0;i<5;i++){
-            mqProducer.sendMessage("这是秒杀消息"+i);
+            mqProducer.send("这是秒杀消息"+i);
         }
     }
 }

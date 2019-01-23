@@ -5,12 +5,13 @@ import com.liushaoming.jseckill.backend.dao.SeckillDAO;
 import com.liushaoming.jseckill.backend.dao.SuccessKilledDAO;
 import com.liushaoming.jseckill.backend.dao.cache.RedisDAO;
 import com.liushaoming.jseckill.backend.dto.Exposer;
-import com.liushaoming.jseckill.backend.dto.MqMsgSeckill;
 import com.liushaoming.jseckill.backend.dto.SeckillExecution;
+import com.liushaoming.jseckill.backend.dto.SeckillMsgBody;
 import com.liushaoming.jseckill.backend.entity.Seckill;
 import com.liushaoming.jseckill.backend.entity.SuccessKilled;
 import com.liushaoming.jseckill.backend.enums.SeckillStateEnum;
 import com.liushaoming.jseckill.backend.exception.SeckillException;
+import com.liushaoming.jseckill.backend.mq.MQProducer;
 import com.liushaoming.jseckill.backend.service.AccessLimitService;
 import com.liushaoming.jseckill.backend.service.SeckillService;
 import org.slf4j.Logger;
@@ -28,8 +29,10 @@ import java.util.List;
  */
 @Service
 public class SeckillServiceImpl implements SeckillService {
-
     private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    //md5盐值字符串,用于混淆MD5
+    private final String salt = "aksksks*&&^%%aaaa&^^%%*";
 
     //注入Service依赖
     @Autowired
@@ -40,11 +43,9 @@ public class SeckillServiceImpl implements SeckillService {
     private RedisDAO redisDAO;
     @Autowired
     private AccessLimitService accessLimitService;
-    @Autowired
-    private MqProducer mqProducer;
 
-    //md5盐值字符串,用于混淆MD5
-    private final String salt = "aksksks*&&^%%aaaa&^^%%*";
+    @Autowired
+    private MQProducer mqProducer;
 
     @Override
     public List<Seckill> getSeckillList() {
@@ -115,17 +116,18 @@ public class SeckillServiceImpl implements SeckillService {
      */
     private SeckillExecution handleSeckillAsync(long seckillId, long userPhone, String md5)
             throws SeckillException {
-        if (md5 == null || !md5.equals(getMD5(seckillId))) {
-            logger.info("seckill_DATA_REWRITE!!!. seckillId={},userPhone={}", seckillId, userPhone);
-            throw new SeckillException(SeckillStateEnum.DATA_REWRITE);
-        }
-
-        MqMsgSeckill mqMsgSeckill = new MqMsgSeckill();
-        mqMsgSeckill.setSeckillId(seckillId);
-        mqMsgSeckill.setUserPhone(userPhone);
-        String msgStr = JSON.toJSONString(mqMsgSeckill);
-        mqProducer.sendMessage(msgStr);
-        return doUpdateStock(seckillId, userPhone);
+//        if (md5 == null || !md5.equals(getMD5(seckillId))) {
+//            logger.info("seckill_DATA_REWRITE!!!. seckillId={},userPhone={}", seckillId, userPhone);
+//            throw new SeckillException(SeckillStateEnum.DATA_REWRITE);
+//        }
+//
+//        SeckillMsgBody mqMsgSeckill = new SeckillMsgBody();
+//        mqMsgSeckill.setSeckillId(seckillId);
+//        mqMsgSeckill.setUserPhone(userPhone);
+//        String msgStr = JSON.toJSONString(mqMsgSeckill);
+//        mqProducer.sendMessage(msgStr);
+//        return doUpdateStock(seckillId, userPhone);
+        throw new SeckillException(SeckillStateEnum.DATA_REWRITE);
     }
 
     /**
@@ -143,6 +145,10 @@ public class SeckillServiceImpl implements SeckillService {
             logger.info("seckill_DATA_REWRITE!!!. seckillId={},userPhone={}", seckillId, userPhone);
             throw new SeckillException(SeckillStateEnum.DATA_REWRITE);
         }
+        SeckillMsgBody msgBody=new SeckillMsgBody();
+        msgBody.setSeckillId(seckillId);
+        msgBody.setUserPhone(userPhone);
+        mqProducer.send(JSON.toJSONString(msgBody));
         return doUpdateStock(seckillId, userPhone);
     }
 
