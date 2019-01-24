@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.liushaoming.jseckill.backend.boot.AppContextHolder;
 import com.liushaoming.jseckill.backend.constant.MQConstant;
 import com.liushaoming.jseckill.backend.dto.SeckillMsgBody;
+import com.liushaoming.jseckill.backend.enums.SeckillStateEnum;
 import com.liushaoming.jseckill.backend.exception.SeckillException;
 import com.liushaoming.jseckill.backend.service.SeckillService;
 import com.rabbitmq.client.*;
@@ -41,9 +42,16 @@ public class MQConsumer {
                     channel.basicAck(envelope.getDeliveryTag(), false);
 
                 } catch (SeckillException seckillE) {
-                    logger.error(seckillE.getMessage(), seckillE);
-                    logger.info("---error_requeue!!!");
-                    channel.basicNack(envelope.getDeliveryTag(), false, true);
+                    if (seckillE.getSeckillStateEnum() == SeckillStateEnum.REPEAT_KILL
+                            || seckillE.getSeckillStateEnum() == SeckillStateEnum.END) {
+                        // SeckillStateEnum.REPEAT_KILL说明数据库中已经保存了记录，这样的多余消息，应该消费掉并应答队列
+                        // 秒杀活动时间已经结束的，也不需要更新数据库
+                        channel.basicAck(envelope.getDeliveryTag(), false);
+                    } else {
+                        logger.info("---error_requeue!!!");
+                        logger.error(seckillE.getMessage(), seckillE);
+                        channel.basicNack(envelope.getDeliveryTag(), false, true);
+                    }
                 }
             }
         };
