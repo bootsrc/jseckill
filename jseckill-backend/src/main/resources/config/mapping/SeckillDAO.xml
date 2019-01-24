@@ -5,12 +5,12 @@
 <mapper namespace="com.liushaoming.jseckill.backend.dao.SeckillDAO">
     <!-- 目的:为DAO接口方法提供sql语句配置-->
 
-    <update id="reduceNumber">
+    <update id="reduceInventory">
         <!-- 具体sql -->
         update
           seckill
         set
-          number = number - 1,
+          inventory = inventory - 1,
           version = #{newVersion}
         where seckill_id = #{seckillId}
         and version = #{oldVersion}
@@ -18,13 +18,13 @@
     </update>
 
     <select id="queryById" resultType="Seckill" parameterType="long">
-        select seckill_id,name,number,start_time,end_time,create_time,version
+        select seckill_id,name,inventory,start_time,end_time,create_time,version
         from seckill
         where seckill_id = #{seckillId}
     </select>
 
     <select id="queryAll" resultType="Seckill">
-        select seckill_id,name,number,start_time,end_time,create_time,version
+        select seckill_id,name,inventory,start_time,end_time,create_time,version
         from seckill
         order by create_time desc
         limit #{offset},#{limit}

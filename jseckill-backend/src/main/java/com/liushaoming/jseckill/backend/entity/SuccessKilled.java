@@ -11,7 +11,7 @@ public class SuccessKilled {
 
     private long userPhone;
 
-    private short state;
+    private int state;
 
     private Date createTime;
 
@@ -34,11 +34,11 @@ public class SuccessKilled {
         this.userPhone = userPhone;
     }
 
-    public short getState() {
+    public int getState() {
         return state;
     }
 
-    public void setState(short state) {
+    public void setState(int state) {
         this.state = state;
     }
 

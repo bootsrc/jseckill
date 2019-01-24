@@ -61,7 +61,7 @@
                 <tbody>
                 <tr th:each='sk : ${list}'>
                     <td th:text="${sk.name}"></td>
-                    <td th:text="${sk.number}"></td>
+                    <td th:text="${sk.inventory}"></td>
 
                     <td th:text="${#dates.format(sk.startTime, 'yyyy-MM-dd HH:mm')}"></td>
                     <td th:text="${#dates.format(sk.endTime, 'yyyy-MM-dd HH:mm')}"></td>

@@ -10,7 +10,7 @@ public class Seckill implements Serializable {
     private static final long serialVersionUID = -5161466177783266963L;
     private long seckillId;
     private String name;
-    private int number;
+    private int inventory;
     private Date startTime;
     private Date endTime;
     private Date createTime;
@@ -32,12 +32,12 @@ public class Seckill implements Serializable {
         this.name = name;
     }
 
-    public int getNumber() {
-        return number;
+    public int getInventory() {
+        return inventory;
     }
 
-    public void setNumber(int number) {
-        this.number = number;
+    public void setInventory(int inventory) {
+        this.inventory = inventory;
     }
 
     public Date getStartTime() {
@@ -77,7 +77,7 @@ public class Seckill implements Serializable {
         return "Seckill{" +
                 "seckillId=" + seckillId +
                 ", name='" + name + '\'' +
-                ", number=" + number +
+                ", inventory=" + inventory +
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
                 ", createTime=" + createTime +

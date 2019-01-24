@@ -19,7 +19,7 @@
           sk.state,
           s.seckill_id "seckill.seckill_id",
           s.name "seckill.name",
-          s.number "seckill.number",
+          s.inventory "seckill.inventory",
           s.start_time "seckill.start_time",
           s.end_time "seckill.end_time",
           s.create_time "seckill.create_time"

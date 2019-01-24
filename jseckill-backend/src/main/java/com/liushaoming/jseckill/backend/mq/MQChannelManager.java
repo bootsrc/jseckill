@@ -39,6 +39,7 @@ public class MQChannelManager {
             try {
                 Channel channelInst = connection.createChannel();
                 channelInst.queueDeclare(MQConstant.QUEUE_NAME_SECKILL, true, false, false, null);
+                channelInst.basicQos(0, 1, false);
                 return channelInst;
             } catch (IOException e) {
                 e.printStackTrace();

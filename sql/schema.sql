@@ -13,7 +13,7 @@ use seckill;
 CREATE TABLE seckill(
 `seckill_id` bigint NOT NULL AUTO_INCREMENT COMMENT '商品库存id',
 `name` varchar(120) NOT NULL COMMENT '商品名称',
-`number` int NOT NULL COMMENT '库存数量',
+`inventory` int NOT NULL COMMENT '库存数量',
 `start_time` DATETIME NOT NULL COMMENT '秒杀开启时间',
 `end_time` DATETIME NOT NULL COMMENT '秒杀结束时间',
 `create_time` DATETIME NOT NULL DEFAULT COMMENT '创建时间',
@@ -25,7 +25,7 @@ key idx_create_time(create_time)
 
 -- 初始化数据
 insert into
-  seckill(name,number,start_time,end_time)
+  seckill(name,inventory,start_time,end_time)
 values
   ('1000元秒杀iphone6',100,'2015-11-01 00:00:00','2015-11-02 00:00:00'),
   ('500元秒杀ipad2',200,'2015-11-01 00:00:00','2015-11-02 00:00:00'),
