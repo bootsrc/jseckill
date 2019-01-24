@@ -112,8 +112,11 @@ public SeckillExecution executeSeckill(long seckillId, long userPhone, String md
 }
 ```
 
+### 3.2 Redis执行秒杀
 
-### 3.2 减库存
+先redis秒杀；然后发送消息队列；最后redis逐条写入数据库
+
+### 3.3 减库存
 
 源码见<code>SeckillServiceImpl.java</code>
 原理是:<br/>
