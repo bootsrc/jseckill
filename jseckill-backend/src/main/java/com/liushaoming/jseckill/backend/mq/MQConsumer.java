@@ -34,7 +34,7 @@ public class MQConsumer {
                     throws IOException {
 
                 String msg = new String(body, "UTF-8");
-                System.out.println("[x] Received '" + msg + "'");
+                logger.info("[mqReceive]  '" + msg + "'");
                 SeckillMsgBody msgBody = JSON.parseObject(msg, SeckillMsgBody.class);
                 try {
                     seckillService.doUpdateStock(msgBody.getSeckillId(), msgBody.getUserPhone());
@@ -48,8 +48,8 @@ public class MQConsumer {
                         // 秒杀活动时间已经结束的，也不需要更新数据库
                         channel.basicAck(envelope.getDeliveryTag(), false);
                     } else {
-                        logger.info("---error_requeue!!!");
                         logger.error(seckillE.getMessage(), seckillE);
+                        logger.info("---->NACK--error_requeue!!!");
                         channel.basicNack(envelope.getDeliveryTag(), false, true);
                     }
                 }

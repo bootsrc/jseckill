@@ -24,7 +24,7 @@ public class MQProducer {
                     MQConstant.QUEUE_NAME_SECKILL,
                     MessageProperties.PERSISTENT_TEXT_PLAIN,
                     msg.getBytes());
-            System.out.println(" [mqSend] '" + msg + "'");
+            logger.info(" [mqSend] '" + msg + "'");
         } catch (IOException e) {
             e.printStackTrace();
         }
