@@ -47,6 +47,14 @@
 <br/>
 6.RabbitMQ异步处理秒杀记录<br/>
 
+## 秒杀过程
+1.RateLimiter限流。 并发量大的时候，直接舍弃掉部分用户的请求 <br/>
+2.Redis判断是否秒杀过。避免重复秒杀。如果没有秒杀过，则在Redis秒杀（减库存，并记录已秒杀成功者的userPhone) <br/>
+3.发送秒杀记录到RabbitMQ，并且马上返回结果到客户端 <br/>
+4.监听RabbitMQ的队列消息, 一条条地读取消息后，操作数据库。插入秒杀记录和减库存。 <br/>
+并手动ACK队列 <br/>
+详情见源码文档 <br/>
+
 ## 未完待续
 <b>演示地址</b><br/>
 👉 [http://jseckill.appjishu.com](http://jseckill.appjishu.com) <br/>
