@@ -55,6 +55,10 @@
 并手动ACK队列 <br/>
 详情见源码文档 <br/>
 
+<br/>
+<b>TODO</b> <br/>
+进一步的优化：等到CountDownLatch每积累20个，才去操作redis, 直接decrby 10 
+
 ## 未完待续
 <b>演示地址</b><br/>
 👉 [http://jseckill.appjishu.com](http://jseckill.appjishu.com) <br/>
