@@ -1,14 +1,11 @@
 package com.liushaoming.jseckill.backend.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.liushaoming.jseckill.backend.bean.ZKConfigBean;
 import com.liushaoming.jseckill.backend.constant.RedisKey;
 import com.liushaoming.jseckill.backend.constant.RedisKeyPrefix;
 import com.liushaoming.jseckill.backend.dao.SeckillDAO;
 import com.liushaoming.jseckill.backend.dao.SuccessKilledDAO;
 import com.liushaoming.jseckill.backend.dao.cache.RedisDAO;
-import com.liushaoming.jseckill.backend.distlock.DistributedLock;
-import com.liushaoming.jseckill.backend.distlock.DistributedLockUtil;
 import com.liushaoming.jseckill.backend.dto.Exposer;
 import com.liushaoming.jseckill.backend.dto.SeckillExecution;
 import com.liushaoming.jseckill.backend.dto.SeckillMsgBody;
@@ -27,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.Transaction;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -56,9 +54,6 @@ public class SeckillServiceImpl implements SeckillService {
     private MQProducer mqProducer;
     @Resource(name = "initJedisPool")
     private JedisPool jedisPool;
-
-    @Resource
-    private ZKConfigBean zkConfigBean;
 
     @Override
     public List<Seckill> getSeckillList() {
@@ -137,56 +132,40 @@ public class SeckillServiceImpl implements SeckillService {
 
         Jedis jedis = jedisPool.getResource();
         String inventoryKey = RedisKeyPrefix.SECKILL_INVENTORY + seckillId;
-        String boughtKey = RedisKeyPrefix.BOUGHT_USERS + seckillId;
-        if (jedis.sismember(boughtKey, String.valueOf(userPhone))) {
+        if (jedis.sismember(RedisKey.SECKILLED_USER, String.valueOf(userPhone))) {
             //重复秒杀
-            logger.info("SECKILL_REPEATED. seckillId={},userPhone={}", seckillId, userPhone);
+            logger.info("seckill REPEATED. seckillId={},userPhone={}", seckillId, userPhone);
             throw new SeckillException(SeckillStateEnum.REPEAT_KILL);
         } else {
-            DistributedLock distLock = DistributedLockUtil.newDistLock(zkConfigBean);
-            if (distLock == null) {
-                logger.info("----ZOOKEEPER CONNECTION FAILED!!!PLS_PROCESS----");
-                handleInRedis(jedis, userPhone, inventoryKey, boughtKey);
-            } else {
-                if (distLock.lock()) {
-                    handleInRedis(jedis, userPhone, inventoryKey, boughtKey);
-                } else {
-                    // 获取zookeeper分布式锁失败，被淘汰
-                    logger.info("SECKILL_THROWN---seckillId={},userPhone={}", seckillId, userPhone);
-                    throw new SeckillException(SeckillStateEnum.RUSH_FAILED);
-                }
-                if (distLock != null) {
-                    distLock.unlock();
-                }
+            String inventoryStr = jedis.get(inventoryKey);
+            int inventory = Integer.valueOf(inventoryStr);
+            if (inventory <= 0) {
+                throw new SeckillException(SeckillStateEnum.SOLD_OUT);
             }
+            jedis.watch(inventoryKey);
+            Transaction tx = jedis.multi();
+            tx.decr(inventoryKey);
+            tx.sadd(RedisKey.SECKILLED_USER, String.valueOf(userPhone));
+            List<Object> resultList = tx.exec();
+            jedis.unwatch();
+            if (resultList != null && resultList.size() == 2) {
+                // 秒杀成功，后面异步更新到数据库中
+                // 发送消息到消息队列
+                SeckillMsgBody msgBody = new SeckillMsgBody();
+                msgBody.setSeckillId(seckillId);
+                msgBody.setUserPhone(userPhone);
+                mqProducer.send(JSON.toJSONString(msgBody));
 
-            // 秒杀成功，后面异步更新到数据库中
-            // 发送消息到消息队列
-            SeckillMsgBody msgBody = new SeckillMsgBody();
-            msgBody.setSeckillId(seckillId);
-            msgBody.setUserPhone(userPhone);
-            mqProducer.send(JSON.toJSONString(msgBody));
-
-            // 立即返回给客户端，说明秒杀成功了
-            SuccessKilled successKilled = new SuccessKilled();
-            successKilled.setUserPhone(userPhone);
-            successKilled.setSeckillId(seckillId);
-            successKilled.setState(SeckillStateEnum.SUCCESS.getState());
-            logger.info("SECKILL_SUCCESS>>>seckillId={},userPhone={}", seckillId, userPhone);
-            return new SeckillExecution(seckillId, SeckillStateEnum.SUCCESS, successKilled);
+                // 立即返回给客户端，说明秒杀成功了
+                SuccessKilled successKilled = new SuccessKilled();
+                successKilled.setUserPhone(userPhone);
+                successKilled.setSeckillId(seckillId);
+                successKilled.setState(SeckillStateEnum.SUCCESS.getState());
+                return new SeckillExecution(seckillId, SeckillStateEnum.SUCCESS, successKilled);
+            } else {
+                throw new SeckillException(SeckillStateEnum.RUSH_FAILED);
+            }
         }
-    }
-
-    private void handleInRedis(Jedis jedis, long userPhone, String inventoryKey
-    , String boughtKey) throws SeckillException {
-        String inventoryStr = jedis.get(inventoryKey);
-        int inventory = Integer.valueOf(inventoryStr);
-        if (inventory <= 0) {
-            throw new SeckillException(SeckillStateEnum.SOLD_OUT);
-        }
-        jedis.decr(inventoryKey);
-        jedis.sadd(boughtKey, String.valueOf(userPhone));
-        logger.info("handleInRedis_done");
     }
 
     /**

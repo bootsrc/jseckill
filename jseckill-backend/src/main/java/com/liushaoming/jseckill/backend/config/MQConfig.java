@@ -1,4 +1,4 @@
-package com.liushaoming.jseckill.backend.boot;
+package com.liushaoming.jseckill.backend.config;
 
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
