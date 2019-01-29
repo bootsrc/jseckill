@@ -80,3 +80,10 @@ Redis秒杀（减库存，并记录已秒杀成功者的userPhone) <br/>
 加群讨论 
 <br/>
 ![](doc/image/group-qrcode.png)
+
+<br/><br/>
+
+
+微信公众号
+
+![](doc/image/public-account.jpg)
