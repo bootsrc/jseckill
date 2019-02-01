@@ -16,12 +16,19 @@ public class ZookeeperConfig {
     @Value("${zookeeper.connect-str}")
     private String connectStr;
 
+    @Value("${zookeeper.connect-timeout}")
+    private String connectTimeout;
+
+    @Value("${zookeeper.lock-acquire-timeout}")
+    private String lockAcquireTimeout;
+
     @Bean
     public ZKConfigBean zkConfigBean() {
-        ZKConfigBean zkConfigBean=new ZKConfigBean();
+        ZKConfigBean zkConfigBean = new ZKConfigBean();
         zkConfigBean.setLockRoot(lockRoot);
         zkConfigBean.setSessionTimeout(Integer.valueOf(sessionTimeout));
         zkConfigBean.setConnectStr(connectStr);
+        zkConfigBean.setLockAcquireTimeout(Integer.valueOf(lockAcquireTimeout));
         return zkConfigBean;
     }
 }

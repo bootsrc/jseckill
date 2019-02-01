@@ -31,7 +31,7 @@
 4.Thymeleaf <br/>
 5.Bootstrap <br/>
 6.RabbitMQ <br/>
-7.zookeeper实现分布式锁 <br/>
+7.zookeeper实现分布式锁-Curator <br/>
 
 ## 高并发优化手段
 1.使用Google guava的RateLimiter来进行限流

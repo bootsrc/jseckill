@@ -2,8 +2,10 @@ package com.liushaoming.jseckill.backend.bean;
 
 public class ZKConfigBean {
     String lockRoot;
-    int sessionTimeout;
     String connectStr;
+    int sessionTimeout;
+    int connectTimeout;
+    int lockAcquireTimeout;
 
     public String getLockRoot() {
         return lockRoot;
@@ -11,6 +13,14 @@ public class ZKConfigBean {
 
     public void setLockRoot(String lockRoot) {
         this.lockRoot = lockRoot;
+    }
+
+    public String getConnectStr() {
+        return connectStr;
+    }
+
+    public void setConnectStr(String connectStr) {
+        this.connectStr = connectStr;
     }
 
     public int getSessionTimeout() {
@@ -21,11 +31,19 @@ public class ZKConfigBean {
         this.sessionTimeout = sessionTimeout;
     }
 
-    public String getConnectStr() {
-        return connectStr;
+    public int getConnectTimeout() {
+        return connectTimeout;
     }
 
-    public void setConnectStr(String connectStr) {
-        this.connectStr = connectStr;
+    public void setConnectTimeout(int connectTimeout) {
+        this.connectTimeout = connectTimeout;
+    }
+
+    public int getLockAcquireTimeout() {
+        return lockAcquireTimeout;
+    }
+
+    public void setLockAcquireTimeout(int lockAcquireTimeout) {
+        this.lockAcquireTimeout = lockAcquireTimeout;
     }
 }

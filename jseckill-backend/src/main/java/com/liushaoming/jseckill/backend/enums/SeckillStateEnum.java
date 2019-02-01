@@ -6,9 +6,19 @@ package com.liushaoming.jseckill.backend.enums;
  */
 public enum SeckillStateEnum {
     /**
+     * 释放分布式锁失败，秒杀被淘汰
+     */
+    DISTLOCK_RELEASE_FAILED(5, "没抢到"),
+
+    /**
+     * 获取分布式锁失败，秒杀被淘汰
+     */
+    DISTLOCK_ACQUIRE_FAILED(4, "没抢到"),
+
+    /**
      * Redis秒杀没抢到
      */
-    RUSH_FAILED(3, "没抢到"),
+    REDIS_ERROR(3, "没抢到"),
     SOLD_OUT(2, "已售罄"),
     SUCCESS(1, "秒杀成功"),
     END(0, "秒杀结束"),

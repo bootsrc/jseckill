@@ -2,13 +2,11 @@ package com.liushaoming.jseckill.backend.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.liushaoming.jseckill.backend.bean.ZKConfigBean;
-import com.liushaoming.jseckill.backend.constant.RedisKey;
 import com.liushaoming.jseckill.backend.constant.RedisKeyPrefix;
 import com.liushaoming.jseckill.backend.dao.SeckillDAO;
 import com.liushaoming.jseckill.backend.dao.SuccessKilledDAO;
 import com.liushaoming.jseckill.backend.dao.cache.RedisDAO;
-import com.liushaoming.jseckill.backend.distlock.DistributedLock;
-import com.liushaoming.jseckill.backend.distlock.DistributedLockUtil;
+import com.liushaoming.jseckill.backend.distlock.CuratorClientManager;
 import com.liushaoming.jseckill.backend.dto.Exposer;
 import com.liushaoming.jseckill.backend.dto.SeckillExecution;
 import com.liushaoming.jseckill.backend.dto.SeckillMsgBody;
@@ -19,6 +17,11 @@ import com.liushaoming.jseckill.backend.exception.SeckillException;
 import com.liushaoming.jseckill.backend.mq.MQProducer;
 import com.liushaoming.jseckill.backend.service.AccessLimitService;
 import com.liushaoming.jseckill.backend.service.SeckillService;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.imps.CuratorFrameworkState;
+import org.apache.curator.framework.recipes.locks.InterProcessLock;
+import org.apache.curator.framework.recipes.locks.InterProcessMutex;
+import org.apache.curator.utils.CloseableUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +34,7 @@ import redis.clients.jedis.JedisPool;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author liushaoming
@@ -59,6 +63,11 @@ public class SeckillServiceImpl implements SeckillService {
 
     @Resource
     private ZKConfigBean zkConfigBean;
+
+    @Resource
+    private CuratorClientManager curatorClientManager;
+
+    private Object sharedObj = new Object();
 
     @Override
     public List<Seckill> getSeckillList() {
@@ -143,21 +152,50 @@ public class SeckillServiceImpl implements SeckillService {
             logger.info("SECKILL_REPEATED. seckillId={},userPhone={}", seckillId, userPhone);
             throw new SeckillException(SeckillStateEnum.REPEAT_KILL);
         } else {
-            DistributedLock distLock = DistributedLockUtil.newDistLock(zkConfigBean);
-            if (distLock == null) {
-                logger.info("----ZOOKEEPER CONNECTION FAILED!!!PLS_PROCESS----");
+
+
+            CuratorFramework client = curatorClientManager.getClient();
+
+            if (client.getState() != CuratorFrameworkState.STARTED) {
+                client.start();
+            }
+            InterProcessLock lock = new InterProcessMutex(client, zkConfigBean.getLockRoot());
+
+            boolean lockSuccess = false;
+            try {
+                lockSuccess = lock.acquire(zkConfigBean.getLockAcquireTimeout(), TimeUnit.MILLISECONDS);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+                logger.info("SECKILL_DISTLOCK_ACQUIRE_EXCEPTION---seckillId={},userPhone={}", seckillId, userPhone);
+
+                if (client.getState() == CuratorFrameworkState.STARTED) {
+                    CloseableUtils.closeQuietly(client);
+                }
+                throw new SeckillException(SeckillStateEnum.DISTLOCK_ACQUIRE_FAILED);
+            }
+
+            long threadId = Thread.currentThread().getId();
+            logger.info("threadId={}, lock_success={}",
+                    new Object[]{threadId, lockSuccess});
+
+            try {
+                lock.release();
+                logger.info("threadId={}, lock_released={}",
+                        new Object[]{threadId, lockSuccess});
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+
+            if (client.getState() == CuratorFrameworkState.STARTED) {
+                CloseableUtils.closeQuietly(client);
+            }
+
+            if (lockSuccess) {
                 handleInRedis(jedis, userPhone, inventoryKey, boughtKey);
             } else {
-                if (distLock.lock()) {
-                    handleInRedis(jedis, userPhone, inventoryKey, boughtKey);
-                } else {
-                    // 获取zookeeper分布式锁失败，被淘汰
-                    logger.info("SECKILL_THROWN---seckillId={},userPhone={}", seckillId, userPhone);
-                    throw new SeckillException(SeckillStateEnum.RUSH_FAILED);
-                }
-                if (distLock != null) {
-                    distLock.unlock();
-                }
+                // 获取zookeeper分布式锁失败，被淘汰
+                logger.info("SECKILL_DISTLOCK_ACQUIRE_FAILED---seckillId={},userPhone={}", seckillId, userPhone);
+                throw new SeckillException(SeckillStateEnum.REDIS_ERROR);
             }
 
             // 秒杀成功，后面异步更新到数据库中
@@ -178,7 +216,7 @@ public class SeckillServiceImpl implements SeckillService {
     }
 
     private void handleInRedis(Jedis jedis, long userPhone, String inventoryKey
-    , String boughtKey) throws SeckillException {
+            , String boughtKey) throws SeckillException {
         String inventoryStr = jedis.get(inventoryKey);
         int inventory = Integer.valueOf(inventoryStr);
         if (inventory <= 0) {
