@@ -77,7 +77,7 @@ Redis秒杀（减库存，并记录已秒杀成功者的userPhone) <br/>
 
 有代码改进优化的建议的统一在Issues里面提
 <br/>
-加群讨论 
+加QQ群讨论 
 <br/>
 ![](doc/image/group-qrcode.png)
 
