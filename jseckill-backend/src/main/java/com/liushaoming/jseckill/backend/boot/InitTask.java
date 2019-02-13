@@ -47,6 +47,7 @@ public class InitTask implements CommandLineRunner {
             jedis.set(nameKey, seckill.getName());
             jedis.set(inventoryKey, String.valueOf(seckill.getInventory()));
         }
+        jedis.close();
         logger.info("Redis缓存数据初始化完毕！");
     }
 }

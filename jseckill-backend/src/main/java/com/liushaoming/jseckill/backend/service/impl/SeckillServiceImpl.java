@@ -144,6 +144,8 @@ public class SeckillServiceImpl implements SeckillService {
             throw new SeckillException(SeckillStateEnum.DATA_REWRITE);
         }
 
+        long threadId = Thread.currentThread().getId();
+
         Jedis jedis = jedisPool.getResource();
         String inventoryKey = RedisKeyPrefix.SECKILL_INVENTORY + seckillId;
         String boughtKey = RedisKeyPrefix.BOUGHT_USERS + seckillId;
@@ -152,8 +154,6 @@ public class SeckillServiceImpl implements SeckillService {
             logger.info("SECKILL_REPEATED. seckillId={},userPhone={}", seckillId, userPhone);
             throw new SeckillException(SeckillStateEnum.REPEAT_KILL);
         } else {
-
-
             CuratorFramework client = curatorClientManager.getClient();
 
             if (client.getState() != CuratorFrameworkState.STARTED) {
@@ -168,35 +168,35 @@ public class SeckillServiceImpl implements SeckillService {
                 logger.error(e.getMessage(), e);
                 logger.info("SECKILL_DISTLOCK_ACQUIRE_EXCEPTION---seckillId={},userPhone={}", seckillId, userPhone);
 
-                if (client.getState() == CuratorFrameworkState.STARTED) {
-                    CloseableUtils.closeQuietly(client);
-                }
+//                if (client.getState() == CuratorFrameworkState.STARTED) {
+//                    CloseableUtils.closeQuietly(client);
+//                }
                 throw new SeckillException(SeckillStateEnum.DISTLOCK_ACQUIRE_FAILED);
             }
 
-            long threadId = Thread.currentThread().getId();
             logger.info("threadId={}, lock_success={}",
                     new Object[]{threadId, lockSuccess});
-
-            try {
-                lock.release();
-                logger.info("threadId={}, lock_released={}",
-                        new Object[]{threadId, lockSuccess});
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-            }
-
-            if (client.getState() == CuratorFrameworkState.STARTED) {
-                CloseableUtils.closeQuietly(client);
-            }
+//            if (client.getState() == CuratorFrameworkState.STARTED) {
+//                CloseableUtils.closeQuietly(client);
+//            }
 
             if (lockSuccess) {
                 handleInRedis(jedis, userPhone, inventoryKey, boughtKey);
+                try {
+                    lock.release();
+                    logger.info("threadId={}, lock_released={}",
+                            new Object[]{threadId, lockSuccess});
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                }
+
             } else {
                 // 获取zookeeper分布式锁失败，被淘汰
                 logger.info("SECKILL_DISTLOCK_ACQUIRE_FAILED---seckillId={},userPhone={}", seckillId, userPhone);
                 throw new SeckillException(SeckillStateEnum.REDIS_ERROR);
             }
+
+            jedis.close();
 
             // 秒杀成功，后面异步更新到数据库中
             // 发送消息到消息队列
@@ -229,7 +229,6 @@ public class SeckillServiceImpl implements SeckillService {
 
     /**
      * 直接在数据库里减库存
-     *
      * @param seckillId
      * @param userPhone
      * @param md5
