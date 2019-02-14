@@ -189,11 +189,10 @@ public class SeckillServiceImpl implements SeckillService {
                 } catch (Exception e) {
                     logger.error(e.getMessage(), e);
                 }
-
             } else {
                 // 获取zookeeper分布式锁失败，被淘汰
                 logger.info("SECKILL_DISTLOCK_ACQUIRE_FAILED---seckillId={},userPhone={}", seckillId, userPhone);
-                throw new SeckillException(SeckillStateEnum.REDIS_ERROR);
+                throw new SeckillException(SeckillStateEnum.DISTLOCK_ACQUIRE_FAILED);
             }
 
             jedis.close();
