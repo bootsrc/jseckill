@@ -107,7 +107,8 @@ public class AccessLimitServiceImpl implements AccessLimitService {
 
 喜欢本项目的，**请在GitHub右上角点**[star](https://github.com/liushaoming/jseckill/stargazers)
 
-### 联系作者
+
+## 联系作者
 | 开发者 | liushaoming |
 | :--------: | :--------: |
 | email | [liushaomingdev@163.com](mailto://liushaomingdev@163.com) |
