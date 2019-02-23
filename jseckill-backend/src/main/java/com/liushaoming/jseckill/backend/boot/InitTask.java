@@ -27,9 +27,9 @@ public class InitTask implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        initRedis();
         logger.info("StartToConsumeMsg--->");
         mqConsumer.receive();
-        initRedis();
     }
 
     /**

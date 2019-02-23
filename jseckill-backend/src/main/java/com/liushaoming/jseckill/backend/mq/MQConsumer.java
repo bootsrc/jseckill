@@ -72,25 +72,24 @@ public class MQConsumer {
             logger.info("[mqReceive]  '" + msg + "'");
             SeckillMsgBody msgBody = JSON.parseObject(msg, SeckillMsgBody.class);
 
-            SeckillExecution exeResult = null;
             AckAction ackAction = AckAction.ACCEPT;
             try {
-                exeResult = seckillService.doUpdateStock(msgBody.getSeckillId(), msgBody.getUserPhone());
+                // 这里演延时2秒，模式秒杀的耗时操作, 上线的时候需要注释掉
+//                try {
+//                    Thread.sleep(2000);
+//                } catch (InterruptedException e) {
+//                    logger.error(e.getMessage(), e);
+//                }
+                seckillService.handleInRedis(msgBody.getSeckillId(), msgBody.getUserPhone());
                 ackAction = AckAction.ACCEPT;
-
             } catch (SeckillException seckillE) {
-                if (seckillE.getSeckillStateEnum() == SeckillStateEnum.REPEAT_KILL
-                        || seckillE.getSeckillStateEnum() == SeckillStateEnum.END) {
-                    // SeckillStateEnum.REPEAT_KILL说明数据库中已经保存了记录，这样的多余消息，应该消费掉并应答队列
-                    // 秒杀活动时间已经结束的，也不需要更新数据库
-//                            logger.info("--LET_MQ_ACK REASON:SeckillStateEnum.REPEAT_KILL,SeckillStateEnum.END");
-//                            channel.basicAck(envelope.getDeliveryTag(), false);
-
+                if (seckillE.getSeckillStateEnum() == SeckillStateEnum.SOLD_OUT
+                        || seckillE.getSeckillStateEnum() == SeckillStateEnum.REPEAT_KILL) {
+                    // 已售罄，或者此人之前已经秒杀过的
                     ackAction = AckAction.THROW;
                 } else {
                     logger.error(seckillE.getMessage(), seckillE);
                     logger.info("---->NACK--error_requeue!!!");
-//                            channel.basicNack(envelope.getDeliveryTag(), false, true);
                     ackAction = AckAction.RETRY;
                 }
             } finally {
@@ -108,7 +107,7 @@ public class MQConsumer {
                         break;
 
                     case THROW:
-                        logger.info("--LET_MQ_ACK REASON:SeckillStateEnum.REPEAT_KILL,SeckillStateEnum.END");
+                        logger.info("--LET_MQ_ACK REASON:SeckillStateEnum.SOLD_OUT,SeckillStateEnum.REPEAT_KILL");
                         channel.basicAck(envelope.getDeliveryTag(), false);
 
                         break;

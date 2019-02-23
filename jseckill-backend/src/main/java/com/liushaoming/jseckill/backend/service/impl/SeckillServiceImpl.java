@@ -120,8 +120,8 @@ public class SeckillServiceImpl implements SeckillService {
      * 执行秒杀
      */
     public SeckillExecution executeSeckill(long seckillId, long userPhone, String md5) throws SeckillException {
-        if (accessLimitService.tryAcquireSeckill()) {   // 如果没有被限流器限制，则执行秒杀处理
-//            return handleSeckill(seckillId, userPhone, md5);
+        if (accessLimitService.tryAcquireSeckill()) {
+            // 如果没有被限流器限制，则执行秒杀处理
             return handleSeckillAsync(seckillId, userPhone, md5);
         } else {    //如果被限流器限制，直接抛出访问限制的异常
             logger.info("--->ACCESS_LIMITED-->seckillId={},userPhone={}", seckillId, userPhone);
@@ -140,6 +140,7 @@ public class SeckillServiceImpl implements SeckillService {
     private SeckillExecution handleSeckillAsync(long seckillId, long userPhone, String md5)
             throws SeckillException {
         if (md5 == null || !md5.equals(getMD5(seckillId))) {
+            // 遇到黑客攻击，检测到了数据篡改
             logger.info("seckill_DATA_REWRITE!!!. seckillId={},userPhone={}", seckillId, userPhone);
             throw new SeckillException(SeckillStateEnum.DATA_REWRITE);
         }
@@ -149,56 +150,23 @@ public class SeckillServiceImpl implements SeckillService {
         Jedis jedis = jedisPool.getResource();
         String inventoryKey = RedisKeyPrefix.SECKILL_INVENTORY + seckillId;
         String boughtKey = RedisKeyPrefix.BOUGHT_USERS + seckillId;
+
+        String inventoryStr = jedis.get(inventoryKey);
+        int inventory = Integer.valueOf(inventoryStr);
+        if (inventory <= 0) {
+            jedis.close();
+            logger.info("SECKILLSOLD_OUT. seckillId={},userPhone={}", seckillId, userPhone);
+            throw new SeckillException(SeckillStateEnum.SOLD_OUT);
+        }
         if (jedis.sismember(boughtKey, String.valueOf(userPhone))) {
+            jedis.close();
             //重复秒杀
             logger.info("SECKILL_REPEATED. seckillId={},userPhone={}", seckillId, userPhone);
             throw new SeckillException(SeckillStateEnum.REPEAT_KILL);
         } else {
-            CuratorFramework client = curatorClientManager.getClient();
-
-            if (client.getState() != CuratorFrameworkState.STARTED) {
-                client.start();
-            }
-            InterProcessLock lock = new InterProcessMutex(client, zkConfigBean.getLockRoot());
-
-            boolean lockSuccess = false;
-            try {
-                lockSuccess = lock.acquire(zkConfigBean.getLockAcquireTimeout(), TimeUnit.MILLISECONDS);
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-                logger.info("SECKILL_DISTLOCK_ACQUIRE_EXCEPTION---seckillId={},userPhone={}", seckillId, userPhone);
-
-//                if (client.getState() == CuratorFrameworkState.STARTED) {
-//                    CloseableUtils.closeQuietly(client);
-//                }
-                throw new SeckillException(SeckillStateEnum.DISTLOCK_ACQUIRE_FAILED);
-            }
-
-            logger.info("threadId={}, lock_success={}",
-                    new Object[]{threadId, lockSuccess});
-//            if (client.getState() == CuratorFrameworkState.STARTED) {
-//                CloseableUtils.closeQuietly(client);
-//            }
-
-            if (lockSuccess) {
-                handleInRedis(jedis, userPhone, inventoryKey, boughtKey);
-                try {
-                    lock.release();
-                    logger.info("threadId={}, lock_released={}",
-                            new Object[]{threadId, lockSuccess});
-                } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
-                }
-            } else {
-                // 获取zookeeper分布式锁失败，被淘汰
-                logger.info("SECKILL_DISTLOCK_ACQUIRE_FAILED---seckillId={},userPhone={}", seckillId, userPhone);
-                throw new SeckillException(SeckillStateEnum.DISTLOCK_ACQUIRE_FAILED);
-            }
-
             jedis.close();
 
-            // 秒杀成功，后面异步更新到数据库中
-            // 发送消息到消息队列
+            // 进入待秒杀队列，进行后续串行操作
             SeckillMsgBody msgBody = new SeckillMsgBody();
             msgBody.setSeckillId(seckillId);
             msgBody.setUserPhone(userPhone);
@@ -208,18 +176,34 @@ public class SeckillServiceImpl implements SeckillService {
             SuccessKilled successKilled = new SuccessKilled();
             successKilled.setUserPhone(userPhone);
             successKilled.setSeckillId(seckillId);
-            successKilled.setState(SeckillStateEnum.SUCCESS.getState());
-            logger.info("SECKILL_SUCCESS>>>seckillId={},userPhone={}", seckillId, userPhone);
-            return new SeckillExecution(seckillId, SeckillStateEnum.SUCCESS, successKilled);
+            successKilled.setState(SeckillStateEnum.ENQUEUE_PRE_SECKILL.getState());
+            logger.info("ENQUEUE_PRE_SECKILL>>>seckillId={},userPhone={}", seckillId, userPhone);
+            return new SeckillExecution(seckillId, SeckillStateEnum.ENQUEUE_PRE_SECKILL, successKilled);
         }
     }
 
-    private void handleInRedis(Jedis jedis, long userPhone, String inventoryKey
-            , String boughtKey) throws SeckillException {
+    /**
+     * 在Redis中真正进行秒杀操作
+     * @param seckillId
+     * @param userPhone
+     * @throws SeckillException
+     */
+    @Override
+    public void handleInRedis(long seckillId, long userPhone) throws SeckillException {
+        Jedis jedis = jedisPool.getResource();
+
+        String inventoryKey = RedisKeyPrefix.SECKILL_INVENTORY + seckillId;
+        String boughtKey = RedisKeyPrefix.BOUGHT_USERS + seckillId;
+
         String inventoryStr = jedis.get(inventoryKey);
         int inventory = Integer.valueOf(inventoryStr);
         if (inventory <= 0) {
+            logger.info("handleInRedis SECKILLSOLD_OUT. seckillId={},userPhone={}", seckillId, userPhone);
             throw new SeckillException(SeckillStateEnum.SOLD_OUT);
+        }
+        if (jedis.sismember(boughtKey, String.valueOf(userPhone))) {
+            logger.info("handleInRedis SECKILL_REPEATED. seckillId={},userPhone={}", seckillId, userPhone);
+            throw new SeckillException(SeckillStateEnum.REPEAT_KILL);
         }
         jedis.decr(inventoryKey);
         jedis.sadd(boughtKey, String.valueOf(userPhone));
@@ -227,33 +211,11 @@ public class SeckillServiceImpl implements SeckillService {
     }
 
     /**
-     * 直接在数据库里减库存
-     * @param seckillId
-     * @param userPhone
-     * @param md5
-     * @return
-     * @throws SeckillException
-     */
-    @Deprecated // 通过redis+mq的形式更能应对高并发，这里的传统方法，舍弃掉
-//    #handleSeckillAsync(seckillId, userPhone, md5)
-    /**
-     * 请使用 {@link SeckillServiceImpl#handleSeckillAsync(long, long, String)}   }
-     */
-    private SeckillExecution handleSeckill(long seckillId, long userPhone, String md5)
-            throws SeckillException {
-        if (md5 == null || !md5.equals(getMD5(seckillId))) {
-            logger.info("seckill_DATA_REWRITE!!!. seckillId={},userPhone={}", seckillId, userPhone);
-            throw new SeckillException(SeckillStateEnum.DATA_REWRITE);
-        }
-        return doUpdateStock(seckillId, userPhone);
-    }
-
-    /**
      * 先插入秒杀记录再减库存
      */
     @Override
     @Transactional
-    public SeckillExecution doUpdateStock(long seckillId, long userPhone)
+    public SeckillExecution updateInventory(long seckillId, long userPhone)
             throws SeckillException {
         //执行秒杀逻辑:减库存 + 记录购买行为
         Date nowTime = new Date();
@@ -307,5 +269,20 @@ public class SeckillServiceImpl implements SeckillService {
             //  所有编译期异常 转化为运行期异常
             throw new SeckillException(SeckillStateEnum.INNER_ERROR);
         }
+    }
+
+    @Override
+    public int isGrab(long seckillId, long userPhone) {
+        int result = 0 ;
+
+        try {
+            String boughtKey = RedisKeyPrefix.BOUGHT_USERS + seckillId;
+            Jedis jedis = jedisPool.getResource();
+            result = jedis.sismember(boughtKey, String.valueOf(userPhone)) ? 1 : 0;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+            result = 0;
+        }
+        return result;
     }
 }

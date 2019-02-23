@@ -112,7 +112,7 @@ public class AccessLimitServiceImpl implements AccessLimitService {
 |  联系方式 |  |
 | :-------- | :-------- |
 | 开发者 | liushaoming |
-| email | [liushaomingdev@163.com](mailto://liushaomingdev@163.com) |
+| email | [liushaomingdev@163.com](mailto:liushaomingdev@163.com) |
 | QQ | 944147540 |
 
 

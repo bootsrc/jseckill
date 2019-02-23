@@ -43,6 +43,16 @@ public interface SeckillService {
     SeckillExecution executeSeckill(long seckillId, long userPhone, String md5)
             throws SeckillException;
 
-    SeckillExecution doUpdateStock(long seckillId, long userPhone)
+    SeckillExecution updateInventory(long seckillId, long userPhone)
             throws SeckillException;
+
+    /**
+     * 在Redis中真正进行秒杀操作
+     * @param seckillId
+     * @param userPhone
+     * @throws SeckillException
+     */
+    void handleInRedis(long seckillId, long userPhone) throws SeckillException;
+
+    public int isGrab(long seckillId, long userPhone);
 }

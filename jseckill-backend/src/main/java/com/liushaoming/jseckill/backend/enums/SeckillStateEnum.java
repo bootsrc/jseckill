@@ -5,6 +5,8 @@ package com.liushaoming.jseckill.backend.enums;
  * Created by liushaoming on 2019-01-14.
  */
 public enum SeckillStateEnum {
+    ENQUEUE_PRE_SECKILL(6, "排队中..."),
+
     /**
      * 释放分布式锁失败，秒杀被淘汰
      */

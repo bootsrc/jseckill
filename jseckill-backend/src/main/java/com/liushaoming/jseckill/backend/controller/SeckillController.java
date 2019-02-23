@@ -106,4 +106,22 @@ public class SeckillController {
         Date now = new Date();
         return new SeckillResult(true, now.getTime());
     }
+
+    /**
+     * @TODO String boughtKey = RedisKeyPrefix.BOUGHT_USERS + seckillId
+     * 还有一个redisKey存放已经入队列了的userPhone，   ENQUEUED_USER
+     * 进队列的时候sadd ENQUEUED_USER , 消费成功的时候，sdel ENQUEUED_USER
+     * 查询这个isGrab接口的时候，先查sismembles boughtKey, true则表明秒杀成功.
+     * 否则，ismembles ENQUEUED_USER, 如果在队列中，说明排队中， 如果不在，说明秒杀失败
+     * @param seckillId
+     * @param phone
+     * @return 返回"1"代表秒杀成功，返回"0", 表示没有抢到。
+     */
+    @RequestMapping(value = "/isGrab/{seckillId}/{phone}")
+    @ResponseBody
+    public String isGrab(@PathVariable("seckillId") Long seckillId,
+                         @PathVariable("phone") Long phone) {
+        int result = seckillService.isGrab(seckillId, phone);
+        return result + "";
+    }
 }
