@@ -1,30 +1,34 @@
 # jseckill
-电商秒杀程序, 乐观锁，Spring Boot.
+
+
+![license](https://img.shields.io/github/license/alibaba/dubbo.svg)
+
+
+<code>jseckill</code>:Java实现的秒杀网站，基于Spring Boot 2.X。 
+
+<code>jseckill</code>:Seckill website implemented with Java, based on Spring Boot 2.X.
+
+**访问这里进行在线演示**：[http://jseckill.appjishu.com](http://jseckill.appjishu.com)
+
 <br/>
-<b>如果该项目对您有帮忙，您可以右上角'star'支持一下，谢谢！</b>
-<br/>
-<h2>演示地址</h2>
 
-👉 [http://jseckill.appjishu.com](http://jseckill.appjishu.com)
+| 🚀 | 🔍 |💡
+| :--------: | :---------: | :------: |
+| [百度](https://www.baidu.com) | [源码解析](#源码解析) | [联系作者](#联系作者) |
 
-<br/>
 
-**Star me on GitHub** <br/>
-🐱 [https://github.com/liushaoming/jseckill](https://github.com/liushaoming/jseckill) 
-<br/>  
-
-## 源码解析             
+### 源码解析             
 👉 [源码解析文档](SOURCE-README.md)
 <br/><br/>
 
-## 演示
+### 演示
 ![](doc/image/demo-1.jpg)  &nbsp;&nbsp; ![](doc/image/demo-2.jpg) 
 <br/>
 <br/>
 ![](doc/image/demo-3.jpg)
 
 
-## 技术栈
+### 技术栈
 1.Spring Boot <br/>
 2.MyBatis <br/>
 3.Redis <br/>
@@ -33,7 +37,7 @@
 6.RabbitMQ <br/>
 7.zookeeper实现分布式锁-Curator <br/>
 
-## 高并发优化手段
+### 高并发优化手段
 1.使用Google guava的RateLimiter来进行限流
 <br/>
 2.减库存时，在同一事务内，先"插入记录"，再"更新库存", 能有效减少行锁的作用时间.
@@ -49,7 +53,7 @@
 <br/>
 6.RabbitMQ异步处理秒杀记录<br/>
 
-## 秒杀过程
+### 秒杀过程
 1.RateLimiter限流。 并发量大的时候，直接舍弃掉部分用户的请求 <br/>
 2.Redis判断是否秒杀过。避免重复秒杀。如果没有秒杀过， <br/>
 在Redis操作前分布式加锁
@@ -64,7 +68,7 @@ Redis秒杀（减库存，并记录已秒杀成功者的userPhone) <br/>
 <b>TODO</b> <br/>
 进一步的优化：等到CountDownLatch每积累20个，才去操作redis, 直接decrby 10 
 
-## 未完待续
+### 未完待续
 <b>演示地址</b><br/>
 👉 [http://jseckill.appjishu.com](http://jseckill.appjishu.com) <br/>
 
@@ -77,6 +81,9 @@ Redis秒杀（减库存，并记录已秒杀成功者的userPhone) <br/>
 
 有代码改进优化的建议的统一在Issues里面提
 <br/>
+
+### 联系作者
+
 加QQ群讨论 
 <br/>
 ![](doc/image/group-qrcode.png)
