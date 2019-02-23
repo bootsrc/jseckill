@@ -14,10 +14,11 @@
 
 <code>jseckill</code>:Seckill website implemented with Java, based on Spring Boot 2.X.
 
-**访问这里进行在线演示**：[http://jseckill.appjishu.com](http://jseckill.appjishu.com)
 
 ## 演示
 **点击进入演示**：[http://jseckill.appjishu.com](http://jseckill.appjishu.com)
+
+注意：提升输入手机号时，随便输入一个11位的数字即可，**不需要填自己的真实手机号**
 
 效果图
 
@@ -107,6 +108,11 @@ public class AccessLimitServiceImpl implements AccessLimitService {
 喜欢本项目的，**请在GitHub右上角点**[star](https://github.com/liushaoming/jseckill/stargazers)
 
 ### 联系作者
+| 开发者 | liushaoming |
+| :--------: | :--------: |
+| email | [liushaomingdev@163.com](mailto://liushaomingdev@163.com) |
+| QQ | 944147540 |
+
 
 加QQ群讨论 
 <br/>
