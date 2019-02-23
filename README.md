@@ -1,8 +1,14 @@
 # jseckill
 
-
 ![license](https://img.shields.io/github/license/alibaba/dubbo.svg)
 
+<br/>
+
+| 📘 | 🛫 | 🏛  | 🐱 | 🛒 | 🚀 | 💡 | 🔨 | 💌 |
+| :--------: | :---------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
+| [介绍](#介绍) | [演示](#演示) | [架构图](#架构图) | [技术栈](#技术栈) | [秒杀过程](#秒杀过程) | [Quick Start](#Quick Start) | [源码解析](#源码解析) | [做贡献](#做贡献) | [联系作者](#联系作者) |
+
+## 介绍
 
 <code>jseckill</code>:Java实现的秒杀网站，基于Spring Boot 2.X。 
 
@@ -10,51 +16,32 @@
 
 **访问这里进行在线演示**：[http://jseckill.appjishu.com](http://jseckill.appjishu.com)
 
-<br/>
+## 演示
+**点击进入演示**：[http://jseckill.appjishu.com](http://jseckill.appjishu.com)
 
-| 🚀 | 🔍 |💡
-| :--------: | :---------: | :------: |
-| [百度](https://www.baidu.com) | [源码解析](#源码解析) | [联系作者](#联系作者) |
+效果图
 
-
-### 源码解析             
-👉 [源码解析文档](SOURCE-README.md)
-<br/><br/>
-
-### 演示
 ![](doc/image/demo-1.jpg)  &nbsp;&nbsp; ![](doc/image/demo-2.jpg) 
 <br/>
 <br/>
 ![](doc/image/demo-3.jpg)
 
+## 架构图
+<br/><br/><br/><br/>
+![](doc/image/arch-1.jpg)
+<br/>
+<br/>
 
-### 技术栈
-1.Spring Boot <br/>
-2.MyBatis <br/>
-3.Redis <br/>
-4.Thymeleaf <br/>
-5.Bootstrap <br/>
-6.RabbitMQ <br/>
-7.zookeeper实现分布式锁-Curator <br/>
+## 技术栈
+- Spring Boot 2.X
+- MyBatis
+- Redis, MySQL
+- Thymeleaf + Bootstrap
+- RabbitMQ
+- Zookeeper, Apache Curator
 
-### 高并发优化手段
-1.使用Google guava的RateLimiter来进行限流
-<br/>
-2.减库存时，在同一事务内，先"插入记录"，再"更新库存", 能有效减少行锁的作用时间.
-<br/>
-数据库更新操作，采用乐观锁，提高并发性 
-<br/>
-3.暴露秒杀接口，暴露信息，作为不常更新的热点数据，贮存到Redis里 
-<br/>
-4.前端静态文档部署到CDN, 缺少资金的公司可以选择动静分离 <br/>
-动静分离:把静态资源（js,css，图片）直接部署放到nginx， 动态服务还在原有的tomcat/SpringBoot里。
-<br/>
-5.Java应用部署多个集群节点，之间使用nginx做负载均衡和反向代理，提高客户端的并发数
-<br/>
-6.RabbitMQ异步处理秒杀记录<br/>
-
-### 秒杀过程
-1.RateLimiter限流。 并发量大的时候，直接舍弃掉部分用户的请求 <br/>
+## 秒杀过程
+1.Google guava RateLimiter限流。 并发量大的时候，直接舍弃掉部分用户的请求 <br/>
 2.Redis判断是否秒杀过。避免重复秒杀。如果没有秒杀过， <br/>
 在Redis操作前分布式加锁
 Redis秒杀（减库存，并记录已秒杀成功者的userPhone) <br/>
@@ -64,23 +51,60 @@ Redis秒杀（减库存，并记录已秒杀成功者的userPhone) <br/>
 并手动ACK队列 <br/>
 详情见源码文档 <br/>
 
-<br/>
-<b>TODO</b> <br/>
-进一步的优化：等到CountDownLatch每积累20个，才去操作redis, 直接decrby 10 
+## Quick Start
+- clone源码
 
-### 未完待续
-<b>演示地址</b><br/>
-👉 [http://jseckill.appjishu.com](http://jseckill.appjishu.com) <br/>
+<code>git clone https://github.com/liushaoming/jseckill.git </code>
 
- 现在工作略忙，后面抽空完善技术文档<br/>
-📌⭐⭐⭐❤❤❤ <br/>
-<h3><b>GitHub地址，路过的帮忙点个星星star，谢谢😊</b></h3>
-🐱 [https://github.com/liushaoming/jseckill](https://github.com/liushaoming/jseckill) 
-<br/>
-<br/>
+- 在Intelij IDEA/eclipse里导入根路径下的pom.xml，再导入文件夹jseckill-backend下面的pom.xml, 等待maven依赖下载完毕
 
-有代码改进优化的建议的统一在Issues里面提
-<br/>
+- 修改application.properties里面的自己的Redis,MySQL,Zookeeper,RabbitMQ的连接配置
+
+- 右键JseckillBackendApplication.java--run as--Java Application
+
+开始Debug
+
+## 源码解析    
+👉 [进入源码解析](SOURCE-README.md)
+### Java后端限流
+使用Google guava的RateLimiter来进行限流 <br/>
+例如：每秒钟只允许10个人进入秒杀步骤. (可能是拦截掉90%的用户请求，拦截后直接返回"很遗憾，没抢到") <br/>
+AccessLimitServiceImpl.java代码 <br/>
+```java
+package com.liushaoming.jseckill.backend.service.impl;
+
+import com.google.common.util.concurrent.RateLimiter;
+import com.liushaoming.jseckill.backend.service.AccessLimitService;
+import org.springframework.stereotype.Service;
+
+/**
+ * 秒杀前的限流.
+ * 使用了Google guava的RateLimiter
+ */
+@Service
+public class AccessLimitServiceImpl implements AccessLimitService {
+    /**
+     * 每秒钟只发出10个令牌，拿到令牌的请求才可以进入秒杀过程
+     */
+    private RateLimiter seckillRateLimiter = RateLimiter.create(10);
+
+    /**
+     * 尝试获取令牌
+     * @return
+     */
+    @Override
+    public boolean tryAcquireSeckill() {
+        return seckillRateLimiter.tryAcquire();
+    }
+}
+```       
+👉 [查看更多源码解析](SOURCE-README.md)
+
+
+## 做贡献
+欢迎提交代码发送<code>Pull Requests</code>, 有代码改进优化的建议的统一在Issues里面提。
+
+喜欢本项目的，**请在GitHub右上角点**[star](https://github.com/liushaoming/jseckill/stargazers)
 
 ### 联系作者
 
