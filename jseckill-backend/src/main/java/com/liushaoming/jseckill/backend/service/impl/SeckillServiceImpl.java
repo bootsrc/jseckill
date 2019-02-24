@@ -69,6 +69,11 @@ public class SeckillServiceImpl implements SeckillService {
 
     private Object sharedObj = new Object();
 
+//    @Override
+//    public List<Seckill> getSeckillList() {
+//        return seckillDAO.queryAll(0, 10);
+//    }
+
     @Override
     public List<Seckill> getSeckillList() {
         return seckillDAO.queryAll(0, 10);

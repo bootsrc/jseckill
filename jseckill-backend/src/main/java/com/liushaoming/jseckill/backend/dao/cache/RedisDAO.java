@@ -1,13 +1,13 @@
 package com.liushaoming.jseckill.backend.dao.cache;
 
 import com.liushaoming.jseckill.backend.entity.Seckill;
+import com.liushaoming.jseckill.singleton.MyRuntimeSchema;
 import io.protostuff.LinkedBuffer;
 import io.protostuff.ProtostuffIOUtil;
 import io.protostuff.runtime.RuntimeSchema;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -21,7 +21,7 @@ public class RedisDAO {
     @Resource(name = "initJedisPool")
     private JedisPool jedisPool;
 
-    private RuntimeSchema<Seckill> schema = RuntimeSchema.createFrom(Seckill.class);
+    private RuntimeSchema<Seckill> schema = MyRuntimeSchema.getInstance().getGoodsRuntimeSchema();
 
     public Seckill getSeckill(long seckillId) {
         //redis操作逻辑
