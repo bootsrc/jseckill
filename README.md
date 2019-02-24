@@ -126,6 +126,11 @@ public class AccessLimitServiceImpl implements AccessLimitService {
 
 
 ## 做贡献
+
+### TODO list
+jseckill启动的时候，需要把已经付款了的秒杀记录（数据表success_seckilled）同步到 <br/>
+已秒杀的Redis数据中去。
+
 欢迎提交代码发送<code>Pull Requests</code>, 有代码改进优化的建议的统一在Issues里面提。
 
 喜欢本项目的，**请在GitHub右上角点**[star](https://github.com/liushaoming/jseckill/stargazers)
