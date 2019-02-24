@@ -182,10 +182,10 @@ public SeckillExecution executeSeckill(long seckillId, long userPhone, String md
                     throw new SeckillCloseException("seckill is closed");
                 } else {
                     //秒杀成功 commit
-                    SuccessKilled successKilled = successKilledDAO.queryByIdWithSeckill(seckillId, userPhone);
+                    SuccessKilled payOrder = successKilledDAO.queryByIdWithSeckill(seckillId, userPhone);
                     logger.info("seckill SUCCESS->>>. seckillId={},userPhone={}", seckillId, userPhone);
                     //事务结束，关闭作用在表seckill上的行锁
-                    return new SeckillExecution(seckillId, SeckillStateEnum.SUCCESS, successKilled);
+                    return new SeckillExecution(seckillId, SeckillStateEnum.SUCCESS, payOrder);
                 }
             }
         } catch (SeckillCloseException e1) {

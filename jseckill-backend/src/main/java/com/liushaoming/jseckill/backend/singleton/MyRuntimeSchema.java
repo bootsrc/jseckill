@@ -1,4 +1,4 @@
-package com.liushaoming.jseckill.singleton;
+package com.liushaoming.jseckill.backend.singleton;
 
 import com.liushaoming.jseckill.backend.entity.Seckill;
 import io.protostuff.runtime.RuntimeSchema;

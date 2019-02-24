@@ -5,7 +5,7 @@ import java.util.Date;
 /**
  * Created by liushaoming on 15/10/5.
  */
-public class SuccessKilled {
+public class PayOrder {
 
     private long seckillId;
 
@@ -60,7 +60,7 @@ public class SuccessKilled {
 
     @Override
     public String toString() {
-        return "SuccessKilled{" +
+        return "PayOrder{" +
                 "seckillId=" + seckillId +
                 ", userPhone=" + userPhone +
                 ", state=" + state +

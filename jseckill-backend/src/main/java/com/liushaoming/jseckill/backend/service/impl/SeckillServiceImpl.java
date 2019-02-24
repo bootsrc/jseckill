@@ -4,14 +4,14 @@ import com.alibaba.fastjson.JSON;
 import com.liushaoming.jseckill.backend.bean.ZKConfigBean;
 import com.liushaoming.jseckill.backend.constant.RedisKeyPrefix;
 import com.liushaoming.jseckill.backend.dao.SeckillDAO;
-import com.liushaoming.jseckill.backend.dao.SuccessKilledDAO;
+import com.liushaoming.jseckill.backend.dao.PayOrderDAO;
 import com.liushaoming.jseckill.backend.dao.cache.RedisDAO;
 import com.liushaoming.jseckill.backend.distlock.CuratorClientManager;
 import com.liushaoming.jseckill.backend.dto.Exposer;
 import com.liushaoming.jseckill.backend.dto.SeckillExecution;
 import com.liushaoming.jseckill.backend.dto.SeckillMsgBody;
+import com.liushaoming.jseckill.backend.entity.PayOrder;
 import com.liushaoming.jseckill.backend.entity.Seckill;
-import com.liushaoming.jseckill.backend.entity.SuccessKilled;
 import com.liushaoming.jseckill.backend.enums.SeckillStateEnum;
 import com.liushaoming.jseckill.backend.exception.SeckillException;
 import com.liushaoming.jseckill.backend.mq.MQProducer;
@@ -44,7 +44,7 @@ public class SeckillServiceImpl implements SeckillService {
     @Autowired
     private SeckillDAO seckillDAO;
     @Autowired
-    private SuccessKilledDAO successKilledDAO;
+    private PayOrderDAO payOrderDAO;
     @Autowired
     private RedisDAO redisDAO;
     @Autowired
@@ -176,12 +176,12 @@ public class SeckillServiceImpl implements SeckillService {
             mqProducer.send(JSON.toJSONString(msgBody));
 
             // 立即返回给客户端，说明秒杀成功了
-            SuccessKilled successKilled = new SuccessKilled();
-            successKilled.setUserPhone(userPhone);
-            successKilled.setSeckillId(seckillId);
-            successKilled.setState(SeckillStateEnum.ENQUEUE_PRE_SECKILL.getState());
+            PayOrder payOrder = new PayOrder();
+            payOrder.setUserPhone(userPhone);
+            payOrder.setSeckillId(seckillId);
+            payOrder.setState(SeckillStateEnum.ENQUEUE_PRE_SECKILL.getState());
             logger.info("ENQUEUE_PRE_SECKILL>>>seckillId={},userPhone={}", seckillId, userPhone);
-            return new SeckillExecution(seckillId, SeckillStateEnum.ENQUEUE_PRE_SECKILL, successKilled);
+            return new SeckillExecution(seckillId, SeckillStateEnum.ENQUEUE_PRE_SECKILL, payOrder);
         }
     }
 
@@ -225,7 +225,7 @@ public class SeckillServiceImpl implements SeckillService {
         try {
             //插入秒杀记录(记录购买行为)
             //这处， seckill_record的id等于这个特定id的行被启用了行锁,   但是其他的事务可以insert另外一行， 不会阻止其他事务里对这个表的insert操作
-            int insertCount = successKilledDAO.insertSuccessKilled(seckillId, userPhone, nowTime);
+            int insertCount = payOrderDAO.insertPayOrder(seckillId, userPhone, nowTime);
             //唯一:seckillId,userPhone
             if (insertCount <= 0) {
                 //重复秒杀
@@ -254,9 +254,9 @@ public class SeckillServiceImpl implements SeckillService {
                         throw new SeckillException(SeckillStateEnum.DB_CONCURRENCY_ERROR);
                     } else {
                         //秒杀成功 commit
-                        SuccessKilled successKilled = successKilledDAO.queryByIdWithSeckill(seckillId, userPhone);
+                        PayOrder payOrder = payOrderDAO.queryByIdWithSeckill(seckillId, userPhone);
                         logger.info("seckill SUCCESS->>>. seckillId={},userPhone={}", seckillId, userPhone);
-                        return new SeckillExecution(seckillId, SeckillStateEnum.SUCCESS, successKilled);
+                        return new SeckillExecution(seckillId, SeckillStateEnum.SUCCESS, payOrder);
                         //return后，事务结束，关闭作用在表seckill上的行锁
                         // update结束，行锁被取消  。reduceInventory()被执行前后数据行被锁定, 其他的事务无法写这一行。
                     }

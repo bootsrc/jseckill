@@ -84,7 +84,7 @@
 
 - 修改application.properties里面的自己的Redis,MySQL,Zookeeper,RabbitMQ的连接配置
 
-- 右键JseckillBackendApplication.java--run as--Java Application
+- 右键JseckillBackendApp.java--run as--Java Application
 
 开始Debug
 

@@ -3,7 +3,7 @@ package com.liushaoming.jseckill.backend.dao.cache;
 import com.liushaoming.jseckill.backend.constant.RedisKey;
 import com.liushaoming.jseckill.backend.constant.RedisKeyPrefix;
 import com.liushaoming.jseckill.backend.entity.Seckill;
-import com.liushaoming.jseckill.singleton.MyRuntimeSchema;
+import com.liushaoming.jseckill.backend.singleton.MyRuntimeSchema;
 import io.protostuff.LinkedBuffer;
 import io.protostuff.ProtostuffIOUtil;
 import io.protostuff.runtime.RuntimeSchema;

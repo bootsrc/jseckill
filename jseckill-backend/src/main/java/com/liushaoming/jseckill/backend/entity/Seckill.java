@@ -5,6 +5,8 @@ import java.util.Date;
 
 /**
  * Created by liushaoming on 15/10/5.
+ * Goods to grab
+ * 被抢购的商品
  */
 public class Seckill implements Serializable {
     private static final long serialVersionUID = -5161466177783266963L;

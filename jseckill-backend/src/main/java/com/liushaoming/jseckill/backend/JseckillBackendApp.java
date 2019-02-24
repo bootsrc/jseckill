@@ -6,11 +6,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 @MapperScan("com.liushaoming.jseckill.backend.dao")
-public class JseckillBackendApplication {
+public class JseckillBackendApp {
 
     public static void main(String[] args) {
-        SpringApplication.run(JseckillBackendApplication.class, args);
+        SpringApplication.run(JseckillBackendApp.class, args);
     }
-
 }
 

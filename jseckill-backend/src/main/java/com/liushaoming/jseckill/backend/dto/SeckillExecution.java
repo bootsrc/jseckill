@@ -1,7 +1,7 @@
 package com.liushaoming.jseckill.backend.dto;
 
 
-import com.liushaoming.jseckill.backend.entity.SuccessKilled;
+import com.liushaoming.jseckill.backend.entity.PayOrder;
 import com.liushaoming.jseckill.backend.enums.SeckillStateEnum;
 
 /**
@@ -19,7 +19,7 @@ public class SeckillExecution {
     private String stateInfo;
 
     //秒杀成功对象
-    private SuccessKilled successKilled;
+    private PayOrder payOrder;
 
     @Override
     public String toString() {
@@ -27,15 +27,15 @@ public class SeckillExecution {
                 "seckillId=" + seckillId +
                 ", state=" + state +
                 ", stateInfo='" + stateInfo + '\'' +
-                ", successKilled=" + successKilled +
+                ", payOrder=" + payOrder +
                 '}';
     }
 
-    public SeckillExecution(long seckillId, SeckillStateEnum stateEnum, SuccessKilled successKilled) {
+    public SeckillExecution(long seckillId, SeckillStateEnum stateEnum, PayOrder payOrder) {
         this.seckillId = seckillId;
         this.state = stateEnum.getState();
         this.stateInfo = stateEnum.getStateInfo();
-        this.successKilled = successKilled;
+        this.payOrder = payOrder;
     }
 
     public SeckillExecution(long seckillId, SeckillStateEnum statEnum) {
@@ -68,11 +68,11 @@ public class SeckillExecution {
         this.stateInfo = stateInfo;
     }
 
-    public SuccessKilled getSuccessKilled() {
-        return successKilled;
+    public PayOrder getPayOrder() {
+        return payOrder;
     }
 
-    public void setSuccessKilled(SuccessKilled successKilled) {
-        this.successKilled = successKilled;
+    public void setPayOrder(PayOrder payOrder) {
+        this.payOrder = payOrder;
     }
 }
