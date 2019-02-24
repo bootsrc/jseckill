@@ -161,15 +161,23 @@ var seckill = {
         $.post(seckill.URL.isGrab(seckill.VAL.seckillId, currentPhone),
             {},
             function (result) {
-                if (result == 1) {
-                    console.log(">>>>秒杀成功");
-                    node.html('<span class="label label-success">' + "秒杀成功" + '</span>');
+                if (result == 0) {
+                    console.log(">>>>秒杀排队中...");
+                    node.html('<span class="label label-success">' + "排队中..." + '</span>');
+                } else {
                     if (seckill.VAL.intervX != 0) {
                         window.clearInterval(seckill.VAL.intervX);
                     }
-                } else {
-                    console.log(">>>>秒杀排队中...");
+
+                    if (result == 1) {
+                        console.log(">>>>秒杀成功");
+                        node.html('<span class="label label-success">' + "秒杀成功" + '</span>');
+                    } else if (result == 2) {
+                        console.log(">>>>没抢到！");
+                        node.html('<span class="label label-success">' + "没抢到" + '</span>');
+                    }
                 }
+
             });
     }
 

@@ -4,6 +4,7 @@ package com.liushaoming.jseckill.backend.mq;
 import com.alibaba.fastjson.JSON;
 import com.liushaoming.jseckill.backend.boot.AppContextHolder;
 import com.liushaoming.jseckill.backend.constant.MQConstant;
+import com.liushaoming.jseckill.backend.constant.RedisKey;
 import com.liushaoming.jseckill.backend.dto.SeckillExecution;
 import com.liushaoming.jseckill.backend.dto.SeckillMsgBody;
 import com.liushaoming.jseckill.backend.enums.AckAction;
@@ -14,6 +15,8 @@ import com.rabbitmq.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -27,6 +30,9 @@ public class MQConsumer {
 
     @Resource(name = "mqConnectionReceive")
     private Connection mqConnectionReceive;
+
+    @Resource(name = "initJedisPool")
+    private JedisPool jedisPool;
 
     public void receive() {
         Channel channel = null;
@@ -104,11 +110,19 @@ public class MQConsumer {
                             logger.error(ioE.getMessage(), ioE);
                             throw ioE;
                         }
+
+                        Jedis jedis = jedisPool.getResource();
+                        jedis.srem(RedisKey.QUEUE_PRE_SECKILL, msgBody.getSeckillId() + "@" + msgBody.getUserPhone());
+                        jedis.close();
                         break;
 
                     case THROW:
                         logger.info("--LET_MQ_ACK REASON:SeckillStateEnum.SOLD_OUT,SeckillStateEnum.REPEAT_KILL");
                         channel.basicAck(envelope.getDeliveryTag(), false);
+
+                        Jedis jedis1 = jedisPool.getResource();
+                        jedis1.srem(RedisKey.QUEUE_PRE_SECKILL, msgBody.getSeckillId() + "@" + msgBody.getUserPhone());
+                        jedis1.close();
 
                         break;
 

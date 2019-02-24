@@ -18,7 +18,7 @@ public class MqProducerTest {
     @Test
     public void sendMessage() {
         for (int i=0;i<5;i++){
-            mqProducer.send("这是秒杀消息"+i);
+//            mqProducer.send("这是秒杀消息"+i);
         }
     }
 }

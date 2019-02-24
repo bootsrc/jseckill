@@ -2,6 +2,7 @@ package com.liushaoming.jseckill.backend.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.liushaoming.jseckill.backend.bean.ZKConfigBean;
+import com.liushaoming.jseckill.backend.constant.RedisKey;
 import com.liushaoming.jseckill.backend.constant.RedisKeyPrefix;
 import com.liushaoming.jseckill.backend.dao.SeckillDAO;
 import com.liushaoming.jseckill.backend.dao.PayOrderDAO;
@@ -173,7 +174,7 @@ public class SeckillServiceImpl implements SeckillService {
             SeckillMsgBody msgBody = new SeckillMsgBody();
             msgBody.setSeckillId(seckillId);
             msgBody.setUserPhone(userPhone);
-            mqProducer.send(JSON.toJSONString(msgBody));
+            mqProducer.send(msgBody);
 
             // 立即返回给客户端，说明秒杀成功了
             PayOrder payOrder = new PayOrder();
@@ -274,17 +275,29 @@ public class SeckillServiceImpl implements SeckillService {
         }
     }
 
+    /**
+     *
+     * @param seckillId
+     * @param userPhone
+     * @return 0： 排队中; 1: 秒杀成功; 2： 秒杀失败
+     */
     @Override
     public int isGrab(long seckillId, long userPhone) {
         int result = 0 ;
 
+        Jedis jedis = jedisPool.getResource();
         try {
             String boughtKey = RedisKeyPrefix.BOUGHT_USERS + seckillId;
-            Jedis jedis = jedisPool.getResource();
             result = jedis.sismember(boughtKey, String.valueOf(userPhone)) ? 1 : 0;
         } catch (Exception ex) {
             logger.error(ex.getMessage(), ex);
             result = 0;
+        }
+
+        if (result == 0) {
+            if (!jedis.sismember(RedisKey.QUEUE_PRE_SECKILL, seckillId + "@" + userPhone)) {
+                result =2;
+            }
         }
         return result;
     }

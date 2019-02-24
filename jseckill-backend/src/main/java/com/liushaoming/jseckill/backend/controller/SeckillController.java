@@ -109,7 +109,7 @@ public class SeckillController {
     /**
      * @param seckillId
      * @param phone
-     * @return 返回"1"代表秒杀成功，返回"0", 表示没有抢到。
+     * @return 返回代码的含义0： 排队中; 1: 秒杀成功; 2： 秒杀失败
      * @TODO String boughtKey = RedisKeyPrefix.BOUGHT_USERS + seckillId
      * 还有一个redisKey存放已经入队列了的userPhone，   ENQUEUED_USER
      * 进队列的时候sadd ENQUEUED_USER , 消费成功的时候，sdel ENQUEUED_USER
