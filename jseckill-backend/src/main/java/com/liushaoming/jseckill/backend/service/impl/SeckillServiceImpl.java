@@ -17,11 +17,6 @@ import com.liushaoming.jseckill.backend.exception.SeckillException;
 import com.liushaoming.jseckill.backend.mq.MQProducer;
 import com.liushaoming.jseckill.backend.service.AccessLimitService;
 import com.liushaoming.jseckill.backend.service.SeckillService;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.imps.CuratorFrameworkState;
-import org.apache.curator.framework.recipes.locks.InterProcessLock;
-import org.apache.curator.framework.recipes.locks.InterProcessMutex;
-import org.apache.curator.utils.CloseableUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +29,6 @@ import redis.clients.jedis.JedisPool;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author liushaoming
@@ -69,14 +63,18 @@ public class SeckillServiceImpl implements SeckillService {
 
     private Object sharedObj = new Object();
 
-//    @Override
-//    public List<Seckill> getSeckillList() {
-//        return seckillDAO.queryAll(0, 10);
-//    }
-
+    /**
+     * 优先从缓存中获取数据
+     * @return
+     */
     @Override
     public List<Seckill> getSeckillList() {
-        return seckillDAO.queryAll(0, 10);
+        List<Seckill> list = redisDAO.getAllGoods();
+        if (list == null || list.size()<1) {
+            list = seckillDAO.queryAll(0, 10);
+            redisDAO.setAllGoods(list);
+        }
+        return list;
     }
 
     @Override

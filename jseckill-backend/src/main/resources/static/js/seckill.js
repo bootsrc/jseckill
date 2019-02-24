@@ -13,8 +13,8 @@ var seckill = {
         exposer: function (seckillId) {
             return '/seckill/exposer/' + seckillId;
         },
-        execution: function (seckillId, md5) {
-            return '/seckill/execution/' + seckillId + '/' + md5;
+        execution: function (seckillId, phone, md5) {
+            return '/seckill/execution/' + seckillId + '/' + phone + '/' + md5;
         },
         isGrab: function (seckillId, phone) {
             return '/seckill/isGrab/' + seckillId + '/' + phone;
@@ -35,7 +35,8 @@ var seckill = {
                         //获取秒杀地址.
                         var md5 = exposer['md5'];
                         seckill.VAL.seckillId = seckillId;
-                        var killUrl = seckill.URL.execution(seckillId, md5);
+                        var currentPhone = $.cookie('killPhone');
+                        var killUrl = seckill.URL.execution(seckillId, currentPhone, md5);
                         console.log("killUrl:" + killUrl);
                         //绑定一次点击事件
                         $('#killBtn').one('click', function () {

@@ -8,6 +8,13 @@
 <br/>
 <br/>
 
+秒杀进行的过程包含两步骤：
+步骤一（秒杀）：在Redis里进行秒杀。 这个步骤用户并发量非常大，抢到后，给与30分钟的时间等待用户付款， 如果用户过期未付款，则Redis库存加1
+，算用户自动放弃付款。
+
+步骤二（付款）：用户付款成功后，后台把付款记录持久化到MySQL中，这个步骤并发量相对小一点，使用数据库的事务解决数据一致性问题
+
+
 秒杀网站的静态资源，比如静态网页引用的js，css，图片，音频，视频等放到CDN（内容分发网络）上。<br/>
 如果小型互联网公司为了减少成本，可以把静态资源部署到nginx下。利用nginx提供静态资源服务的高并发性能<br/>
 的特点，可以最大可能的提高静态资源的访问速度。
@@ -114,9 +121,26 @@ public SeckillExecution executeSeckill(long seckillId, long userPhone, String md
 
 ### 3.2 Redis执行秒杀
 
-先redis秒杀；然后发送消息队列；最后redis逐条写入数据库
+秒杀步骤流程图
 
-### 3.3 减库存
+![](doc/image/arch-seckill.png)
+
+1.流程图Step1：先经过Nginx负载均衡和分流
+
+2.进入jseckill程序处理。 Google guava RateLimiter限流。 并发量大的时候，直接舍弃掉部分用户的请求
+
+3.Redis判断是否秒杀过。避免重复秒杀。如果没有秒杀过 <br/>
+把用户名（这里是手机号）和seckillId封装成一条消息发送到RabbitMQ，请求变成被顺序串行处理 <br/>
+立即返回状态“排队中”到客户端上，客户端上回显示“排队中...” 
+
+4.后台监听RabbitMQ里消息，每次取一条消息，并解析后，请求Redis做库存减1操作（decr命令） <br/>
+并手动ACK队列 
+如果减库存成功，则在Redis里记录下库存成功的用户手机号userPhone.
+
+5.流程图Step2：客户端排队成功后，定时请求后台查询是否秒杀成功，后面会去查询Redis是否秒杀成功 <br/>
+
+
+### 3.3 付款后减库存
 
 源码见<code>SeckillServiceImpl.java</code>
 原理是:<br/>
