@@ -81,6 +81,17 @@
 <code>git clone https://github.com/liushaoming/jseckill.git </code>
 
 - 在Intelij IDEA/eclipse里导入根路径下的pom.xml，再导入文件夹jseckill-backend下面的pom.xml, 等待maven依赖下载完毕
+详细操作：
+
+**如果是IDEA**，先IDEA | File | Open...，选择jseckill根路径下的pom文件, Open as project以导入根项目jseckill。
+
+操作菜单栏 View | Tool Windows | Maven Projects。 点击"+"， 添加jseckill-backend下面的pom。
+
+此时Maven Projects下面有根项目jseckill和jseckill-backend。如下图
+
+![](doc/image/quickstart-0.png)
+
+**如果是Eclipse**, import导入maven项目，勾选jseckil和jseckill-backend下面共两个pom文件即可。
 
 - 修改application.properties里面的自己的Redis,MySQL,Zookeeper,RabbitMQ的连接配置
 
