@@ -138,6 +138,22 @@ public class AccessLimitServiceImpl implements AccessLimitService {
 
 ## 做贡献
 
+
+## Q&A
+Q:
+为什么有时候会发现消息发送到了队列中，但是不被消费？
+
+A:
+一种可能的原因是。 你的电脑上在Debug一个程序jseckill-backend，  另外在你自己的服务器上也运行了同样的程序。
+两个程序如果连接的是同一个RabbitMQ，就会同时消费消息，就会发生这样的情况。因为我们在程序员里
+
+<code>com.liushaoming.jseckill.backend.mq.MQConsumer#receive</code>里限制了消费者的个数。
+```java
+channel.basicQos(0, 1, false);
+```
+
+
+
 ### TODO list
 jseckill启动的时候，需要把已经付款了的秒杀记录（数据表success_seckilled）同步到 <br/>
 已秒杀的Redis数据中去。
