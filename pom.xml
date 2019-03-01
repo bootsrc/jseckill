@@ -7,4 +7,9 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>jseckill-root</name>
 	<description>Java Seckill</description>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>jseckill-backend</module>
+	</modules>
 </project>
