@@ -11,7 +11,7 @@
 
 | 📌 | ❓ | 🔨 | 💌 |
 | :------: | :------: | :------: | :------: |
-| [Todo-list](#Todo-list) | [Q&A](#Q-and-A) | [做贡献](#做贡献) | [联系作者](#联系作者) |
+| [Todo list](#Todo list) | [Q&A](#Q-and-A) | [做贡献](#做贡献) | [联系作者](#联系作者) |
   
 
 ## 介绍
@@ -143,7 +143,7 @@ public class AccessLimitServiceImpl implements AccessLimitService {
 ```       
 👉 [查看更多源码解析](SOURCE-README.md)
 
-## Todo-list
+## Todo list
 - 秒杀成功30分钟订单过期的实现
 
 **方案**:
