@@ -147,6 +147,8 @@ public class AccessLimitServiceImpl implements AccessLimitService {
 - 秒杀成功30分钟订单过期的实现
 
 **方案**:
+A:用redis对key设置过期时间，超时的监听
+   秒杀成功后订单保存在redis,对key设置过期时间为当时向后推半小时，当key过期后触发监听，对redis库存+1。
 
 
 ## Q&A
