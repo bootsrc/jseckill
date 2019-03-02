@@ -171,7 +171,7 @@ channel.basicQos(0, 1, false);
 | 序号 | 开发者GitHub | QQ | 邮箱 |
 | :-------: | :-------- | :-------: | :-------- |
 | 1 | [liushaoming](https://github.com/liushaoming) | 944147540 | [liushaomingdev@163.com](mailto:liushaomingdev@163.com) |
-| 2 | [tajinshi](https://github.com/tajinshi) | 605091800 | [605091800@QQ.com](mailto:605091800@QQ.com)
+| 2 | [tajinshi](https://github.com/tajinshi) | 605091800 | [605091800@qq.com](mailto:605091800@qq.com)
 
 
 ## 联系作者
