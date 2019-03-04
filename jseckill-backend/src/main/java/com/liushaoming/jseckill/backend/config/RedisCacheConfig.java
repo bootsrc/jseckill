@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
@@ -60,7 +61,10 @@ public class RedisCacheConfig {
     @Bean
     public JedisPool initJedisPool(@Qualifier("poolConfig") JedisPoolConfig poolConfig) {
         log.info("JedisPool注入开始:");
-//        JedisPool jedisPool = new JedisPool(poolConfig,host,port,timeout);
+       //无密码
+        if (StringUtils.isEmpty(password)) {
+            return new JedisPool(poolConfig,host,port,timeout,null,database);
+        }
         return new JedisPool(poolConfig, host, port, timeout, password, database);
     }
 }
