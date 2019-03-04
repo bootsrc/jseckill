@@ -189,5 +189,3 @@ channel.basicQos(0, 1, false);
 微信公众号
 
 ![](doc/image/public-account.jpg)
-
-===
