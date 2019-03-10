@@ -220,9 +220,27 @@ RabbitMQ的集群地址这样配置
 rabbitmq.address-list=192.168.20.3:5672,localhost:5672
 ```
 
-规则是美每个地址采用host:port的格式，多个mq服务器地址采用英文的逗号隔开。中间不要有很合多余的空格
+规则是每个地址采用host:port的格式，多个mq服务器地址采用英文的逗号隔开。中间不要有多余的空格
 
 **集群原理**, 下面这个方法可以根据地址列表，来返回可用的MQ地址。 如果都不可用，则直接抛出异常。
 ```java
 com.rabbitmq.client.ConnectionFactory#newConnection(List<Address> addrs) throws IOException, TimeoutException {}
+```
+应用代码见<code>com.liushaoming.jseckill.backend.config.MQConfig</code>
+
+代码片段
+
+```java
+@Bean("mqConnectionSeckill")
+    public Connection mqConnectionSeckill(@Autowired MQConfigBean mqConfigBean) throws IOException, TimeoutException {
+        ConnectionFactory factory = new ConnectionFactory();
+        //用户名
+        factory.setUsername(username);
+        //密码
+        factory.setPassword(password);
+        //虚拟主机路径（相当于数据库名）
+        factory.setVirtualHost(virtualHost);
+        //返回连接
+        return factory.newConnection(mqConfigBean.getAddressList());
+    }
 ```
