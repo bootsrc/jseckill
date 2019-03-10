@@ -165,6 +165,44 @@ A:
 channel.basicQos(0, 1, false);
 ```
 
+## 调试报错的排除
+- 1.java.net.SocketException: Socket Closed--nested exception is com.rabbitmq.client.AuthenticationFailureException: ACCESS_REFUSED
+
+```text
+03/10-16:51:28 [main] WARN  org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext- Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'initTask': Injection of resource dependencies failed; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'MQConsumer': Injection of resource dependencies failed; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'seckillServiceImpl': Unsatisfied dependency expressed through field 'mqProducer'; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'MQProducer': Unsatisfied dependency expressed through field 'mqChannelManager'; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'MQChannelManager': Injection of resource dependencies failed; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'mqConnectionSeckill' defined in class path resource [com/liushaoming/jseckill/backend/config/MQConfig.class]: Bean instantiation via factory method failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [com.rabbitmq.client.Connection]: Factory method 'mqConnectionSeckill' threw exception; nested exception is com.rabbitmq.client.AuthenticationFailureException: ACCESS_REFUSED - Login was refused using authentication mechanism PLAIN. For details see the broker logfile.
+03/10-16:51:28 [AMQP Connection 47.99.196.243:5672] ERROR com.rabbitmq.client.impl.ForgivingExceptionHandler- An unexpected connection driver error occured
+java.net.SocketException: Socket Closed
+	at java.net.SocketInputStream.socketRead0(Native Method)
+	at java.net.SocketInputStream.socketRead(SocketInputStream.java:116)
+	at java.net.SocketInputStream.read(SocketInputStream.java:170)
+	at java.net.SocketInputStream.read(SocketInputStream.java:141)
+	at java.io.BufferedInputStream.fill(BufferedInputStream.java:246)
+	at java.io.BufferedInputStream.read(BufferedInputStream.java:265)
+	at java.io.DataInputStream.readUnsignedByte(DataInputStream.java:288)
+	at com.rabbitmq.client.impl.Frame.readFrom(Frame.java:91)
+	at com.rabbitmq.client.impl.SocketFrameHandler.readFrame(SocketFrameHandler.java:164)
+	at com.rabbitmq.client.impl.AMQConnection$MainLoop.run(AMQConnection.java:596)
+	at java.lang.Thread.run(Thread.java:745)
+03/10-16:51:28 [main] INFO  com.alibaba.druid.pool.DruidDataSource- {dataSource-1} closed
+03/10-16:51:28 [main] INFO  org.apache.catalina.core.StandardService- Stopping service [Tomcat]
+03/10-16:51:28 [main] INFO  org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLoggingListener- 
+
+Error starting ApplicationContext. To display the conditions report re-run your application with 'debug' enabled.
+
+
+```
+分析：
+这里关键点是<code>nested exception is com.rabbitmq.client.AuthenticationFailureException: ACCESS_REFUSED</code>  <br/>
+并且进一步说了<code>- Login was refused using authentication mechanism PLAINM</code>
+
+说明这里是RabbitMQ的用户名和密码认证失败。你需要修改下application-dev.properties里的相关配置。
+
+
+- 2.是否需要手动创建队列？
+答：不需要手动创建。 程序会自动创建所需要的队列。默认是创建名为"seckill"的队列，待秒杀的请求会先放到这个队列里，后面出队，进入Redis进行秒杀操作。
+
+<br/>
+
 ## 做贡献
 特別鸣谢一下对开源项目作出贡献的开发者
 
