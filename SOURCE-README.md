@@ -200,3 +200,29 @@ public SeckillExecution executeSeckill(long seckillId, long userPhone, String md
     }
 ```
 <br/>
+
+
+## 4.集群的配置
+
+- RabbitMQ的集群配置
+
+```text
+#Rabbitmq配置
+rabbitmq.address-list=192.168.20.3:5672,localhost:5672
+rabbitmq.username=myname
+rabbitmq.password=somepass
+rabbitmq.publisher-confirms=true
+rabbitmq.virtual-host=/vh_test
+rabbitmq.queue=seckill
+```
+RabbitMQ的集群地址这样配置
+```text
+rabbitmq.address-list=192.168.20.3:5672,localhost:5672
+```
+
+规则是美每个地址采用host:port的格式，多个mq服务器地址采用英文的逗号隔开。中间不要有很合多余的空格
+
+**集群原理**, 下面这个方法可以根据地址列表，来返回可用的MQ地址。 如果都不可用，则直接抛出异常。
+```java
+com.rabbitmq.client.ConnectionFactory#newConnection(List<Address> addrs) throws IOException, TimeoutException {}
+```
