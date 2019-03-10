@@ -1,10 +1,11 @@
 package com.liushaoming.jseckill.backend.mq;
 
-import com.liushaoming.jseckill.backend.constant.MQConstant;
+import com.liushaoming.jseckill.backend.bean.MQConfigBean;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -21,11 +22,14 @@ public class MQChannelManager {
     @Resource(name = "mqConnectionSeckill")
     private Connection connection;
 
+    @Autowired
+    private MQConfigBean mqConfigBean;
+
     private ThreadLocal<Channel> localSendChannel = new ThreadLocal<Channel>() {
         public Channel initialValue() {
             try {
                 Channel channelInst = connection.createChannel();
-                channelInst.queueDeclare(MQConstant.QUEUE_NAME_SECKILL, true, false, false, null);
+                channelInst.queueDeclare(mqConfigBean.getQueue(), true, false, false, null);
                 return channelInst;
             } catch (IOException e) {
                 e.printStackTrace();
@@ -47,7 +51,7 @@ public class MQChannelManager {
             //申明队列
             try {
                 channel = connection.createChannel();
-                channel.queueDeclare(MQConstant.QUEUE_NAME_SECKILL, true, false, false, null);
+                channel.queueDeclare(mqConfigBean.getQueue(), true, false, false, null);
                 localSendChannel.set(channel);
             } catch (IOException e) {
                 e.printStackTrace();

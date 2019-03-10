@@ -2,10 +2,8 @@ package com.liushaoming.jseckill.backend.mq;
 
 
 import com.alibaba.fastjson.JSON;
-import com.liushaoming.jseckill.backend.boot.AppContextHolder;
-import com.liushaoming.jseckill.backend.constant.MQConstant;
+import com.liushaoming.jseckill.backend.bean.MQConfigBean;
 import com.liushaoming.jseckill.backend.constant.RedisKey;
-import com.liushaoming.jseckill.backend.dto.SeckillExecution;
 import com.liushaoming.jseckill.backend.dto.SeckillMsgBody;
 import com.liushaoming.jseckill.backend.enums.AckAction;
 import com.liushaoming.jseckill.backend.enums.SeckillStateEnum;
@@ -14,6 +12,7 @@ import com.liushaoming.jseckill.backend.service.SeckillService;
 import com.rabbitmq.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -34,11 +33,14 @@ public class MQConsumer {
     @Resource(name = "initJedisPool")
     private JedisPool jedisPool;
 
+    @Autowired
+    private MQConfigBean mqConfigBean;
+
     public void receive() {
         Channel channel = null;
         try {
             channel = mqConnectionReceive.createChannel();
-            channel.queueDeclare(MQConstant.QUEUE_NAME_SECKILL, true, false, false, null);
+            channel.queueDeclare(mqConfigBean.getQueue(), true, false, false, null);
             channel.basicQos(0, 1, false);
         } catch (IOException e) {
             e.printStackTrace();
@@ -47,7 +49,7 @@ public class MQConsumer {
         MyDefaultConsumer myDefaultConsumer = new MyDefaultConsumer(channel);
 
         try {
-            channel.basicConsume(MQConstant.QUEUE_NAME_SECKILL, false, myDefaultConsumer);
+            channel.basicConsume(mqConfigBean.getQueue(), false, myDefaultConsumer);
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
