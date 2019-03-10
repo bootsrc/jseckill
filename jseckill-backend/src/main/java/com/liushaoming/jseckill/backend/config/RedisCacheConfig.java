@@ -61,9 +61,9 @@ public class RedisCacheConfig {
     @Bean
     public JedisPool initJedisPool(@Qualifier("poolConfig") JedisPoolConfig poolConfig) {
         log.info("JedisPool注入开始:");
-       //无密码
-        if (StringUtils.isEmpty(password)) {
-            return new JedisPool(poolConfig,host,port,timeout,null,database);
+        //  Redis无密码时候的处理
+        if ("".equals(password)){
+            password = null;
         }
         return new JedisPool(poolConfig, host, port, timeout, password, database);
     }
