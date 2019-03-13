@@ -23,6 +23,12 @@
 **谢谢您对本项目的支持** <br/>
 **请点击此处进行**[Star](https://github.com/liushaoming/jseckill/stargazers)
 
+
+GitHub地址为[https://github.com/liushaoming/jseckill](https://github.com/liushaoming/jseckill)
+
+建议访问GitHub以获取更多分布式项目源码[https://github.com/liushaoming?tab=repositories](https://github.com/liushaoming?tab=repositories)
+
+
 ## 演示
 **点击进入演示**：[http://jseckill.appjishu.com](http://jseckill.appjishu.com)
 
