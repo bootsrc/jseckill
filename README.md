@@ -24,7 +24,7 @@
 **请点击此处进行**[Star](https://github.com/liushaoming/jseckill/stargazers)
 
 
-GitHub地址为[https://github.com/liushaoming/jseckill](https://github.com/liushaoming/jseckill)
+**GitHub** 地址为[https://github.com/liushaoming/jseckill](https://github.com/liushaoming/jseckill)
 
 建议访问GitHub以获取更多分布式项目源码[https://github.com/liushaoming?tab=repositories](https://github.com/liushaoming?tab=repositories)
 
