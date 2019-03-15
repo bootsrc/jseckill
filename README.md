@@ -201,7 +201,7 @@ Error starting ApplicationContext. To display the conditions report re-run your 
 这里关键点是<code>nested exception is com.rabbitmq.client.AuthenticationFailureException: ACCESS_REFUSED</code>  <br/>
 并且进一步说了<code>- Login was refused using authentication mechanism PLAINM</code>
 
-说明这里是RabbitMQ的用户名和密码认证失败。你需要修改下application-dev.properties里的相关配置。
+说明这里是RabbitMQ的用户名和密码认证失败。你需要修改下application-dev.properties里RabbitMQ的用户名和密码相关配置。
 
 
 - 2.是否需要手动创建队列？
@@ -210,9 +210,9 @@ Error starting ApplicationContext. To display the conditions report re-run your 
 
 - 3.ERROR com.rabbitmq.client.impl.ForgivingExceptionHandler- An unexpected connection driver error occured. java.net.SocketException: socket closed
 <br/>
-
+日志的报错内容跟"用户名密码错误"是一样的。 如果密码已经配置正确了，就可以考虑下面的原因。
 原因，application-dev.properties里面virtual_host默认配置是rabbitmq.virtual-host=/vh_test
-如果你改成了"/", 或者其它的值。你需要登陆http://localhost:15672控制台去查看有效的virtual_host是多少。这里必须跟控制台的virtual_host
+如果你改成了"/", 或者其它的值。你需要登陆<code>http://localhost:15672</code>控制台去查看有效的virtual_host是多少。这里必须跟控制台的virtual_host
 
 保持一致
 
