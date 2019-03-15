@@ -1,7 +1,5 @@
 package com.liushaoming.jseckill.backend.service.impl;
 
-import com.alibaba.fastjson.JSON;
-import com.liushaoming.jseckill.backend.bean.ZKConfigBean;
 import com.liushaoming.jseckill.backend.constant.RedisKey;
 import com.liushaoming.jseckill.backend.constant.RedisKeyPrefix;
 import com.liushaoming.jseckill.backend.dao.SeckillDAO;
@@ -55,9 +53,6 @@ public class SeckillServiceImpl implements SeckillService {
     private MQProducer mqProducer;
     @Resource(name = "initJedisPool")
     private JedisPool jedisPool;
-
-    @Resource
-    private ZKConfigBean zkConfigBean;
 
     @Resource
     private CuratorClientManager curatorClientManager;
