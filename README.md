@@ -9,9 +9,9 @@
 | [介绍](#介绍) | [演示](#演示) | [技术栈](#技术栈) | [架构图](#架构图) | [秒杀过程](#秒杀过程) | [Quick Start](#QuickStart) | [源码解析](#源码解析) |
 
 
-| 📌 | ❓ | 🔨 | 💌 |
-| :------: | :------: | :------: | :------: |
-| [Todo list](#Todo-list) | [Q&A](#Q-and-A) | [做贡献](#做贡献) | [联系作者](#联系作者) |
+| 📌 | ❓ | 🐞 | 🔨 | 💌 |
+| :------: | :------: | :------: | :------: | :------: |
+| [Todo list](#Todo-list) | [Q&A](#Q-and-A) | [调试排错](#调试排错) | [做贡献](#做贡献) | [联系作者](#联系作者) |
   
 
 ## 介绍
@@ -171,7 +171,7 @@ A:
 channel.basicQos(0, 1, false);
 ```
 
-## 调试报错的排除
+## 调试排错
 - 1.java.net.SocketException: Socket Closed--nested exception is com.rabbitmq.client.AuthenticationFailureException: ACCESS_REFUSED
 
 ```text
@@ -207,7 +207,22 @@ Error starting ApplicationContext. To display the conditions report re-run your 
 - 2.是否需要手动创建队列？
 答：不需要手动创建。 程序会自动创建所需要的队列。默认是创建名为"seckill"的队列，待秒杀的请求会先放到这个队列里，后面出队，进入Redis进行秒杀操作。
 
+
+- 3.ERROR com.rabbitmq.client.impl.ForgivingExceptionHandler- An unexpected connection driver error occured. java.net.SocketException: socket closed
 <br/>
+
+原因，application-dev.properties里面virtual_host默认配置是rabbitmq.virtual-host=/vh_test
+如果你改成了"/", 或者其它的值。你需要登陆http://localhost:15672控制台去查看有效的virtual_host是多少。这里必须跟控制台的virtual_host
+
+保持一致
+
+- 4.rabbitmq.address-list=192.168.20.3:5672,localhost:5672
+请注意，这里需要配置的是mq的tcp端口，默认值为5672. 而不是mq的http端口15672
+
+- 5.Redis server服务没有设置密码，怎么配置此项目？
+正确的配置是<code>spring.redis.password=</code>
+而不是<code>spring.redis.password=''</code> 。切忌在配置里加多余的单引号或者双引号。
+
 
 ## 做贡献
 特別鸣谢一下对开源项目作出贡献的开发者
