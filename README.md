@@ -156,7 +156,7 @@ public class AccessLimitServiceImpl implements AccessLimitService {
 A:用redis对key设置过期时间，超时的监听
    秒杀成功后订单保存在redis,对key设置过期时间为当时向后推半小时，当key过期后触发监听，对redis库存+1。
 
-- 在进入削峰队列之前，需要判断mq中的消息数目是否过多
+- 在进入削峰队列之前，需要判断mq中的消息数目是否过多，如果超过限制，直接返回给客户端"已售罄"
 
 **方案**
   channel.messageCount("seckill") 可以获取到队列中当前到ready的消息的数目
@@ -253,5 +253,3 @@ Error starting ApplicationContext. To display the conditions report re-run your 
 微信公众号
 
 ![](doc/image/public-account.jpg)
-
-==
