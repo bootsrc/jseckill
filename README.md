@@ -216,7 +216,11 @@ Error starting ApplicationContext. To display the conditions report re-run your 
 
 - 3.ERROR com.rabbitmq.client.impl.ForgivingExceptionHandler- An unexpected connection driver error occured. java.net.SocketException: socket closed
 <br/>
-日志的报错内容跟"用户名密码错误"是一样的。 如果密码已经配置正确了，就可以考虑下面的原因---irtual_host配置错误。
+rabbitmq.virtual-host配置错误
+
+分析过程：
+
+日志的报错内容跟"用户名密码错误"是一样的。 如果密码已经配置正确了，就可以考虑下面的原因---virtual_host配置错误。
 
 原因，application-dev.properties里面virtual_host默认配置是rabbitmq.virtual-host=/vh_test
 如果你改成了"/", 或者其它的值。你需要登陆<code>http://localhost:15672</code>控制台去查看有效的virtual_host是多少。这里必须跟控制台的virtual_host
