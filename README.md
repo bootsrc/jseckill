@@ -264,6 +264,6 @@ rabbitmq.virtual-host配置错误
 
 ### GitHub
 
-**GitHub**为本人的开源项目主战场，Gitee为从GitHub同步过来的代码，欢迎移步GitHub了解作者的更多项目源码
+**GitHub**为本人的开源项目主战场，Gitee为从GitHub同步过来的代码。欢迎移步GitHub点击[Star](https://github.com/liushaoming/jseckill/stargazers)并查看本人的更多项目源码
 
 [https://github.com/liushaoming/jseckill](https://github.com/liushaoming/jseckill)
