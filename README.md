@@ -267,3 +267,11 @@ rabbitmq.virtual-host配置错误
 **GitHub**为本人的开源项目主战场，Gitee为从GitHub同步过来的代码。欢迎移步GitHub点击[Star](https://github.com/liushaoming/jseckill/stargazers)并查看本人的更多项目源码
 
 [https://github.com/liushaoming/jseckill](https://github.com/liushaoming/jseckill)
+
+## 福利
+
+### iOS零基础入门教学视频（百度网盘下载，无需密码）
+
+[iOS教学视频](http://pan.baidu.com/share/link?shareid=1745091365&uk=1276224992&qq-pf-to=pcqq.c2c)
+
+大家记得[Star](https://github.com/liushaoming/jseckill/stargazers)此项目来收藏本链接，谢谢！
