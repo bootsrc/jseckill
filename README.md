@@ -71,7 +71,9 @@
 
 ![](doc/image/flowchart.png)
 
-1.流程图Step1：先经过Nginx负载均衡
+流程图Step1：
+
+1.先经过Nginx负载均衡;
 
 2.Nginx里面通过配置文件配置限流功能，限流算法是漏统桶法;
 
