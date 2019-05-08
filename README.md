@@ -69,11 +69,11 @@
 
 秒杀步骤流程图
 
-![](doc/image/arch-seckill.png)
+![](doc/image/flowchart.png)
 
-1.流程图Step1：先经过Nginx负载均衡和分流
+1.流程图Step1：先经过Nginx负载均衡
 
-2.进入jseckill程序处理。 Google guava RateLimiter限流。 并发量大的时候，直接舍弃掉部分用户的请求
+2.Nginx里面通过配置文件配置限流功能，限流算法是漏统桶法;
 
 3.Redis判断是否秒杀过。避免重复秒杀。如果没有秒杀过 <br/>
 把用户名（这里是手机号）和seckillId封装成一条消息发送到RabbitMQ，请求变成被顺序串行处理 <br/>

@@ -123,7 +123,7 @@ public SeckillExecution executeSeckill(long seckillId, long userPhone, String md
 
 秒杀步骤流程图
 
-![](doc/image/arch-seckill.png)
+![](doc/image/flowchart.png)
 
 1.流程图Step1：先经过Nginx负载均衡和分流
 
