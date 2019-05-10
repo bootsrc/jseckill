@@ -408,3 +408,8 @@ spring.redis.jedis.pool.min-idle=0
 比如，改成2秒钟，<code>spring.redis.jedis.pool.max-wait=2000</code>
 
 说明了问题的原因是Redis连接阻塞住了。 会导致网页访问超时。
+
+
+* 另外的排错办法
+
+  增加了一个http接口"/api/ping", 如何发现秒杀请求被卡死了，但是ping接口访问能直接返回"pong",说明整个应用程序是好的。只是秒杀的处理卡死在比如redis的处理上。这样进一步可以确定是redis的使用问题。
