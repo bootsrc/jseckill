@@ -239,6 +239,10 @@ rabbitmq.virtual-host配置错误
 正确的配置是<code>spring.redis.password=</code>
 而不是<code>spring.redis.password=''</code> 。切忌在配置里加多余的单引号或者双引号。
 
+## 性能优化
+
+* [jseckill运行了一段时间后，发现进程是活的端口也是通的，但是网页访问返回504 Gateway Time-out](/doc/readme/app-die.md)
+
 
 ## 做贡献
 特別鸣谢一下对开源项目作出贡献的开发者

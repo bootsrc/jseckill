@@ -22,6 +22,11 @@ public class ApiController {
     @Autowired
     private MQConfigBean mqConfigBean;
 
+    @RequestMapping("ping")
+    public String ping() {
+        return "pong";
+    }
+
     @RequestMapping("rabbitmq")
     public String rabbitmq() {
 //        AMQP.Queue.DeclareOk declareOk = channelInst.queueDeclare(mqConfigBean.getQueue(), true, false, false, null);
