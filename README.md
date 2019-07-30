@@ -276,7 +276,7 @@ rabbitmq.virtual-host配置错误
 
 ## 福利
 
-### iOS零基础入门教学视频（百度网盘下载，无需密码,免费）
+### iOS零基础入门教学视频（百度网盘下载，无需密码, 纯免费）
 
 [iOS教学视频](http://pan.baidu.com/share/link?shareid=1745091365&uk=1276224992&qq-pf-to=pcqq.c2c)
 
