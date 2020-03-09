@@ -21,7 +21,7 @@ import java.util.List;
 @Component
 public class InitTask implements CommandLineRunner {
     private static final Logger logger = LoggerFactory.getLogger(InitTask.class);
-
+å
     @Resource(name = "initJedisPool")
     private JedisPool jedisPool;
     @Resource
