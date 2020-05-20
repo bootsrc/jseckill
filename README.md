@@ -276,5 +276,3 @@ qq群号 1043200253
 
 [https://github.com/bootsrc/jseckill](https://github.com/bootsrc/jseckill)
 
-**
-
